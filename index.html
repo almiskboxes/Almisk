@@ -346,6 +346,12 @@ function filterJobs(l) {
 }
 
 /* ---------- Actions ---------- */
+function askStatus(id, to) {
+  const j = jobs.find(x => x.id === id);
+  if (!j || j.status === to || !can('s_' + to)) { renderJobs(); return; }
+  confirmBox(`Mark "${j.companyName}" as ${STATUS[to].label}?`, 'Yes, ' + STATUS[to].label, () => updateStatus(id, to), false);
+  renderJobs(); // puts any changed status dropdown back until the change is confirmed
+}
 async function updateStatus(id, status) { if (!can('s_' + status)) return; const { error } = await sb.from('jobs').update({ status }).eq('id', id); if (error) fail(error); await refreshData(); renderAll(); }
 async function addJob(d) { if (!can('add')) return false; const { data, error } = await sb.from('jobs').insert(toRow(d)).select('id').single(); if (error) { fail(error); return false; } await refreshData(); renderAll(); return data.id; }
 async function editJob(id, d) {
@@ -439,8 +445,8 @@ function renderAll() {
 /* ---------- Modals & job form ---------- */
 function openModal(h) { $('modalBox').innerHTML = h; $('modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; translateDom($('modalBox')); }
 function closeModal() { $('modal').classList.add('hidden'); document.body.style.overflow = ''; }
-function confirmBox(msg, label, fn) {
-  openModal(`<h3 class="text-xl font-bold mb-2">${esc(msg)}</h3><div class="flex gap-3 justify-end mt-5"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button><button id="confirmYes" class="bg-red-600 text-white rounded-xl px-5 py-3 font-bold">${esc(label)}</button></div>`);
+function confirmBox(msg, label, fn, danger) {
+  openModal(`<h3 class="text-xl font-bold mb-2">${esc(msg)}</h3><div class="flex gap-3 justify-end mt-5"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button><button id="confirmYes" class="${danger === false ? 'kraft' : 'bg-red-600'} text-white rounded-xl px-5 py-3 font-bold">${esc(label)}</button></div>`);
   $('confirmYes').onclick = () => { closeModal(); fn(); };
 }
 function itemRow(it = { type: 'Box', quantity: '', unit: 'pcs' }) {
@@ -641,7 +647,7 @@ document.addEventListener('click', e => {
     case 'view': openView(id); break;
     case 'print': printJob(id); break;
     case 'removeAttachment': deleteAttachment(el.dataset.file, id); break;
-    case 'quick': closeModal(); updateStatus(id, el.dataset.to); break;
+    case 'quick': askStatus(id, el.dataset.to); break;
     case 'del': confirmBox('Are you sure you want to delete this job?', 'Delete Job', () => deleteJob(id)); break;
     case 'demo': if (!can('demo')) break; jobs.length ? confirmBox('Demo data will replace your current jobs. Continue?', 'Replace with Demo', loadDemo) : loadDemo(); break;
     case 'clear': if (!can('demo')) break; confirmBox('Delete ALL jobs? This cannot be undone.', 'Clear All Data', clearJobs); break;
@@ -668,7 +674,7 @@ document.addEventListener('change', e => {
   const d = e.target.dataset;
   if (e.target.id === 'jobUpload') uploadJobAttachments(d.job, e.target.files);
   if (e.target.id === 'fFiles') previewFiles(e.target.files);
-  if (d.act === 'status') updateStatus(d.id, e.target.value);
+  if (d.act === 'status') askStatus(d.id, e.target.value);
   if (d.act === 'roleNotify' && can('users')) sb.from('roles').update({ notify: e.target.checked }).eq('id', d.id).then(loadRoles);
   if (d.act === 'setRole' && can('users')) sb.from('profiles').update({ role_id: e.target.value }).eq('id', d.id).then(({ error }) => error && fail(error));
 });
