@@ -7,55 +7,45 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Nirmala UI","Noto Sans Bengali",Kalpurush,Arial,sans-serif;background:#f6f5f2;color:#1c1917}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Nirmala UI","Noto Sans Bengali",Arial,sans-serif;background:#f6f5f2;color:#1c1917}
 .kraft{background:#a8743f}
-.tick{display:inline-flex;white-space:nowrap;will-change:transform;animation:tick var(--d,20s) linear infinite}
-.tick span{display:inline-block;box-sizing:border-box;min-width:100vw;padding-right:4rem}
+.tick{display:inline-flex;white-space:nowrap;animation:tick var(--d,20s) linear infinite}
+.tick span{display:inline-block;min-width:100vw;padding-right:4rem}
 .ticker-box:hover .tick{animation-play-state:paused}
-@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media (prefers-reduced-motion:reduce){.tick{animation:none;white-space:normal}.tick span{min-width:0}.tick span+span{display:none}}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.tick{animation:none}}
 button,select,input,textarea{font:inherit}
 :focus-visible{outline:3px solid #a8743f;outline-offset:2px}
 </style>
 </head>
 <body class="min-h-screen">
-<header class="bg-white border-b border-stone-200 sticky top-0 z-30">
+<header class="bg-white/95 backdrop-blur border-b border-stone-200 sticky top-0 z-30">
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="kraft w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0">📦</div>
-      <div class="min-w-0">
-        <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight truncate">ALMISK CARTON BOXES</h1>
-        <p class="text-xs sm:text-sm text-stone-500 truncate">Packaging Production Control</p>
-      </div>
+      <div class="min-w-0"><h1 class="font-extrabold text-lg sm:text-2xl tracking-tight truncate">ALMISK CARTON BOXES</h1>
+      <p class="text-xs sm:text-sm text-stone-500 truncate">Packaging Production Control</p></div>
     </div>
-    <div class="flex items-center gap-3 shrink-0">
-      <span id="todayLabel" class="hidden sm:block text-sm font-semibold text-stone-600"></span>
-      <button id="btnAdd" data-act="add" class="kraft text-white font-bold rounded-xl px-4 py-3 text-base shadow-sm hover:opacity-90">+ Add New Job</button>
+    <div class="flex items-center gap-2 shrink-0">
+      <span id="todayLabel" class="hidden md:block text-sm font-semibold text-stone-600 mr-1"></span>
+      <button id="btnAdd" data-act="add" class="kraft text-white font-bold rounded-xl px-4 py-3 shadow-sm hover:opacity-90">+ Add New Job</button>
+      <div id="whoBar" class="relative flex items-center gap-2"></div>
     </div>
   </div>
-  <div id="whoBar" class="max-w-7xl mx-auto px-4 pb-2 flex items-center gap-2 text-sm"></div>
 </header>
 
 <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
   <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></section>
-
   <section class="grid lg:grid-cols-3 gap-5">
     <div class="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
       <h2 class="font-bold text-lg mb-3">⚠ Attention Required</h2>
       <div id="attention" class="space-y-2 max-h-96 overflow-y-auto"></div>
     </div>
     <div class="space-y-5">
-      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
-        <h2 class="font-bold text-lg mb-3">Today's Production Overview</h2>
-        <div id="overview" class="grid grid-cols-2 gap-2"></div>
-      </div>
-      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
-        <h2 class="font-bold text-lg mb-3">Recently Delivered</h2>
-        <div id="recent" class="space-y-2"></div>
-      </div>
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm"><h2 class="font-bold text-lg mb-3">Today's Production Overview</h2><div id="overview" class="grid grid-cols-2 gap-2"></div></div>
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm"><h2 class="font-bold text-lg mb-3">Recently Delivered</h2><div id="recent" class="space-y-2"></div></div>
     </div>
   </section>
-
   <section>
     <h2 class="font-bold text-xl mb-3">Production Jobs</h2>
     <div class="bg-white rounded-2xl border border-stone-200 p-3 shadow-sm grid gap-2 sm:grid-cols-2 lg:grid-cols-5 mb-4">
@@ -66,42 +56,26 @@ button,select,input,textarea{font:inherit}
     </div>
     <div id="jobs" class="space-y-3"></div>
   </section>
-
   <footer id="adminFooter" class="flex flex-wrap gap-3 pt-2 pb-8">
     <button data-act="demo" class="border border-stone-300 bg-white rounded-xl px-4 py-3 font-semibold">Load Demo Data</button>
     <button data-act="clear" class="border border-red-300 text-red-700 bg-white rounded-xl px-4 py-3 font-semibold">Clear All Data</button>
   </footer>
 </main>
 
-<div id="modal" class="hidden fixed inset-0 z-50 bg-black/50 overflow-y-auto p-3 sm:p-6">
-  <div id="modalBox" class="bg-white rounded-2xl max-w-2xl mx-auto p-5 shadow-xl"></div>
-</div>
-
+<div id="modal" class="hidden fixed inset-0 z-50 bg-black/50 overflow-y-auto p-0 sm:p-6"><div id="modalBox" class="bg-white rounded-t-2xl sm:rounded-2xl max-w-2xl mx-auto mt-10 sm:mt-0 p-5 shadow-xl"></div></div>
 <div id="ticker" class="fixed bottom-0 inset-x-0 z-40" style="display:none"></div>
 <div id="auth" class="fixed inset-0 z-[60] bg-stone-100 items-center justify-center p-4" style="display:none"></div>
+
 <script>
 /* ---------- Setup ---------- */
-/* ===== PASTE YOUR SUPABASE VALUES HERE (see SETUP-GUIDE.md) ===== */
-const SUPABASE_URL =
-  'https://gcjkspgwjqployrwawfv.supabase.co';
-
-const SUPABASE_ANON_KEY =
-  'sb_publishable_2x7cM2LtyVw0WGUYbZOxDA_V7X1DpaU';
-
+const SUPABASE_URL = 'https://gcjkspgwjqployrwawfv.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_2x7cM2LtyVw0WGUYbZOxDA_V7X1DpaU';
 const EMAIL_DOMAIN = 'almisk.app';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ================================================================ */
-
-
-
-
-const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
-const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-let reads = new Set();
-let jobs = [];
+let jobs = [], users = [], roles = [], notifs = [], reads = new Set(), me = null, notice = null;
+let channel = null, rtTimer = null, menuOpen = false, delTouched = false, shownDate = '';
 let filters = { q: '', s: 'all', p: 'all', d: 'all' };
-let delTouched = false;
-let shownDate = '';
 
 const STATUS = {
   pending:   { label: 'Pending',   icon: '⏳', cls: 'bg-amber-100 text-amber-900 border-amber-300', next: ['running', 'Start Production'] },
@@ -110,217 +84,31 @@ const STATUS = {
   delivered: { label: 'Delivered', icon: '🚚', cls: 'bg-emerald-800 text-white border-emerald-900', next: null },
   hold:      { label: 'Hold',      icon: '⏸', cls: 'bg-red-100 text-red-900 border-red-300',       next: ['pending', 'Resume (Pending)'] }
 };
+const HERO = { pending: 'from-amber-500 to-amber-700', running: 'from-blue-600 to-blue-800', finished: 'from-green-600 to-green-800', delivered: 'from-emerald-700 to-emerald-950', hold: 'from-red-600 to-red-800' };
 const FLOW = ['pending', 'running', 'finished', 'delivered'];
 const TYPES = ['Box', 'Bag', 'Sleeve', 'Card', 'Sticker', 'Label', 'Paper Bag', 'Carton', 'Other'];
 const UNITS = ['pcs', 'sets', 'kg', 'rolls', 'other'];
-
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = n => String(n).padStart(2, '0');
+function fail(e) { console.error(e); alert((e && e.message) || e); }
 
-/* ---------- Users, roles & permissions ---------- */
-const PERMS = [['add','Add new jobs'],['edit','Edit jobs'],['delete','Delete jobs'],['s_pending','Set Pending'],['s_running','Set Running'],
-  ['s_finished','Set Finished'],['s_delivered','Set Delivered'],['s_hold','Set Hold'],['notice','Edit notice ticker'],['users','Manage users & roles'],['demo','Demo / clear data']];
-const DEFAULT_ROLES = [
-  { id: 'admin', name: 'Admin', locked: true, perms: PERMS.map(p => p[0]) },
-  { id: 'viewer', name: 'Viewer (view only)', perms: [] },
-  { id: 'runner', name: 'Running Operator', perms: ['s_running'] },
-  { id: 'finisher', name: 'Finished Operator', perms: ['s_finished'] }
-];
-let users = [], roles = [], me = null;
-// Admin role always has every permission; other roles use their ticked permissions
+/* ---------- Permissions ---------- */
+const PERMS = [['add','Add new jobs'],['edit','Edit jobs'],['delete','Delete jobs'],['s_pending','Set Pending'],['s_running','Set Running'],['s_finished','Set Finished'],['s_delivered','Set Delivered'],['s_hold','Set Hold'],['notice','Edit notice ticker'],['users','Manage users & roles'],['demo','Demo / clear data']];
 const can = p => !!me && (me.role === 'admin' || ((roles.find(r => r.id === me.role) || { perms: [] }).perms.includes(p)));
-const canAny = j => Object.keys(STATUS).some(s => s !== j.status && can('s_' + s));
+const viewOnly = () => !!me && !can('add') && !can('edit') && !can('delete') && !Object.keys(STATUS).some(s => can('s_' + s));
+const emailOf = u => u.includes('@') ? u : u + '@' + EMAIL_DOMAIN;
 
-const emailOf = uid => uid.includes('@') ? uid : uid + '@' + EMAIL_DOMAIN;
-const validUid = u => /^[a-z0-9._-]{3,30}$/.test(u);
-const USER_RULE = 'Use a name, a user ID (3-30 letters, numbers, . _ -) and a password of 6+ characters.';
-function fail(err) { console.error(err); alert((err && err.message) || err); }
-
-function showSetupHelp() {
-  const a = $('auth'); a.style.display = 'flex';
-  a.innerHTML = '<div class="bg-white rounded-2xl shadow-xl p-6 max-w-md"><h2 class="font-extrabold text-xl mb-2">Supabase is not set up yet</h2><p class="text-stone-700">Open <b>index.html</b>, find <b>SUPABASE_URL</b> and <b>SUPABASE_ANON_KEY</b> near the top of the script, paste your project values, save and reload. Follow <b>SETUP-GUIDE.md</b>.</p></div>';
-}
-function showAuth(mode, msg) {
-  const setup = false, i = 'border border-stone-300 rounded-xl px-3 py-3 w-full';
-  authMode = mode; const a = $('auth'); a.style.display = 'flex';
-  a.innerHTML = `<form id="authForm" class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-3">
-    <button type="button" data-act="lang" class="float-right text-sm font-semibold border border-stone-300 rounded-lg px-2 py-1">${lang === 'bn' ? 'English' : 'বাংলা'}</button>
-    <div class="text-center"><div class="kraft w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-2">📦</div>
-    <h2 class="font-extrabold text-xl">ALMISK CARTON BOXES</h2>
-    <p class="text-sm text-stone-600">${setup ? 'First-time setup: create the Admin account' : 'Sign in to continue'}</p></div>
-    ${setup ? `<input id="aName" class="${i}" placeholder="Full name" autocomplete="name">` : ''}
-    <input id="aUid" class="${i}" placeholder="User ID or email" autocomplete="username" autocapitalize="none">
-    <input id="aPw" type="password" class="${i}" placeholder="Password" autocomplete="${setup ? 'new-password' : 'current-password'}">
-    <p id="authErr" class="text-red-700 text-sm font-semibold">${esc(msg || '')}</p>
-    <button class="kraft text-white font-bold rounded-xl px-4 py-3 w-full">${setup ? 'Create Admin & Start' : 'Sign In'}</button></form>`;
-  translateDom(a);
-  $('authForm').onsubmit = async e => {
-    e.preventDefault();
-    const uid = $('aUid').value.trim().toLowerCase(), pw = $('aPw').value, err = $('authErr'), btn = e.submitter;
-    if (!uid || !pw) { err.textContent = t('Enter your user ID and password.'); return; }
-    btn.disabled = true; err.textContent = '';
-    try {
-      if (setup) {
-        const name = $('aName').value.trim();
-        if (!name || !validUid(uid) || pw.length < 6) { err.textContent = t(USER_RULE); return; }
-        const { data, error } = await sb.auth.signUp({ email: emailOf(uid), password: pw, options: { data: { name, user_id: uid } } });
-        if (error) { err.textContent = error.message; return; }
-        if (!data.session) { err.textContent = t('Turn off "Confirm email" in Supabase (Authentication, Providers, Email), then try again.'); return; }
-        await enter(data.user);
-      } else {
-        const { data, error } = await sb.auth.signInWithPassword({ email: emailOf(uid), password: pw });
-        if (error) { err.textContent = t('Wrong user ID or password.'); return; }
-        await enter(data.user);
-      }
-    } finally { btn.disabled = false; }
-  };
-}
-async function enter(user) {
-  const { data: p } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-  if (!p || !p.approved) { await sb.auth.signOut(); me = null; showAuth('login', t('Your account is not active. Ask the Admin.')); return; }
-  me = { id: p.id, name: p.name, userId: p.user_id, role: p.role_id };
-  $('auth').style.display = 'none'; $('auth').innerHTML = '';
-  await refreshData(); renderAll(); subscribe();
-}
-async function initAuth() {
-  document.documentElement.lang = lang;
-  if (!configured) return showSetupHelp();
-  sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && me) { me = null; renderTicker(); showAuth('login'); } });
-  const { data } = await sb.auth.getSession();
-  if (data.session) return enter(data.session.user);
-  showAuth('login');
-}
-async function logout(msg) {
-  me = null; closeModal(); renderTicker();
-  if (channel) { sb.removeChannel(channel); channel = null; }
-  await sb.auth.signOut(); showAuth('login', typeof msg === 'string' ? msg : '');
-}
-async function changePassword() {
-  const pw = prompt(t('New password (6+ characters):'));
-  if (!pw) return;
-  if (pw.length < 6) return alert(t('Password must be at least 6 characters.'));
-  const { error } = await sb.auth.updateUser({ password: pw });
-  alert(error ? error.message : t('Password updated.'));
-}
-
-function renderWho() {
-  const r = roles.find(x => x.id === me.role), b = 'border border-stone-300 rounded-lg px-3 py-2 font-semibold';
-  const un = myNotifs().filter(n => !reads.has(n.id)).length;
-  $('whoBar').innerHTML = `<span class="font-semibold">👤 ${esc(me.name)}</span><span class="text-stone-500">${esc(r ? r.name : me.role)}</span>
-    <span class="ml-auto flex flex-wrap gap-2 justify-end">
-    <button data-act="notifs" aria-label="Notifications" class="${b} relative">🔔${un ? `<span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">${un}</span>` : ''}</button>
-    <button data-act="lang" class="${b}">${lang === 'bn' ? 'English' : 'বাংলা'}</button>
-    ${can('users') ? `<button data-act="users" class="${b}">Users &amp; Roles</button>` : ''}
-    <button data-act="chgPw" class="${b}">Password</button>
-    <button data-act="logout" class="${b}">Sign out</button></span>`;
-  $('btnAdd').style.display = can('add') ? '' : 'none';
-  $('adminFooter').style.display = can('demo') ? '' : 'none';
-}
-function statusSelect(j) {
-  const opts = Object.keys(STATUS).filter(s => s === j.status || can('s_' + s));
-  if (opts.length < 2) return '';
-  return `<select data-act="status" data-id="${j.id}" aria-label="Change status" class="border border-stone-300 rounded-xl px-3 py-3 bg-white font-semibold">
-    ${opts.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${STATUS[s].label}</option>`).join('')}</select>`;
-}
-function whoLine(j) {
-  const h = j.history || [], l = h[h.length - 1];
-  return (lang === 'bn' ? 'অর্ডার দিয়েছেন' : 'Placed by') + ` <b>${esc(j.createdBy || '—')}</b>` + (h.length > 1 ? (lang === 'bn' ? ` · ${t(STATUS[l.status].label)} — <b>${esc(l.by)}</b> দ্বারা` : ` · ${STATUS[l.status].label} set by <b>${esc(l.by)}</b>`) : '');
-}
-
-async function openUsers(msg) {
-  if (can('users')) await loadUsers();
-  const ro = sel => roles.map(r => `<option value="${r.id}" ${r.id === sel ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
-  const i = 'border border-stone-300 rounded-xl px-3 py-2 w-full bg-white', b = 'border border-stone-300 rounded-lg px-3 py-2 font-semibold bg-white';
-  openModal(`<div class="flex justify-between"><h3 class="text-xl font-bold">Users &amp; Roles</h3><button data-act="close" aria-label="Close" class="text-2xl text-stone-500">✕</button></div>
-    <p class="text-red-700 text-sm font-semibold mt-1">${esc(msg || '')}</p>
-    <h4 class="font-bold mt-3 mb-2">Users</h4><div class="space-y-2">${users.map(u => `<div class="border border-stone-200 rounded-xl p-3 flex flex-wrap items-center gap-2">
-      <div class="flex-1 min-w-[8rem]"><b>${esc(u.name)}</b><div class="text-xs text-stone-500">ID: ${esc(u.userId)}${u.approved ? '' : ' · ' + t('Disabled')}</div></div>
-      <select data-act="setRole" data-id="${u.id}" class="border border-stone-300 rounded-lg px-2 py-2 bg-white" ${u.id === me.id ? 'disabled' : ''}>${ro(u.role)}</select>
-      
-      ${u.id === me.id ? '' : u.approved ? `<button data-act="delUser" data-id="${u.id}" class="${b} text-red-700">Disable</button>` : `<button data-act="enableUser" data-id="${u.id}" class="${b}">Enable</button>`}</div>`).join('')}</div>
-    <h4 class="font-bold mt-4 mb-2">Add user</h4><p class="text-sm text-stone-600">For security, create staff accounts in Supabase Authentication → Users → Add user, using their real email (or userid@almisk.app if managed internally). Then return here to approve and set the role.</p><div class="hidden grid grid-cols-2 gap-2">
-      <input id="uName" class="${i}" placeholder="Full name"><input id="uId" class="${i}" placeholder="User ID" autocapitalize="none">
-      <input id="uPw" type="password" class="${i}" placeholder="Password (6+ chars)"><select id="uRole" class="${i}">${ro('viewer')}</select></div>
-
-    <h4 class="font-bold mt-5 mb-2">Roles</h4><div class="space-y-2">${roles.map(r => `<div class="border border-stone-200 rounded-xl p-3 flex items-center gap-2">
-      <div class="flex-1 text-sm"><b>${esc(r.name)}</b><div class="text-stone-500">${r.locked ? 'Full access' : r.perms.length ? r.perms.map(k => t(PERMS.find(p => p[0] === k)[1])).join(', ') : 'View only'}</div></div>
-      <label class="flex items-center gap-1 text-sm"><input type="checkbox" data-act="roleNotify" data-id="${r.id}" class="w-5 h-5" ${r.notify !== false ? 'checked' : ''}>Receives notifications</label>
-      ${r.locked ? '' : `<button data-act="delRole" data-id="${r.id}" class="${b} text-red-700">Delete</button>`}</div>`).join('')}</div>
-    <h4 class="font-bold mt-4 mb-2">Create a role <span class="font-normal text-sm text-stone-500">(everyone can view jobs)</span></h4>
-    <input id="rName" class="${i}" placeholder="Role name, e.g. Delivery Driver">
-    <div class="grid grid-cols-2 gap-1 mt-2 text-sm">${PERMS.map(p => `<label class="flex items-center gap-2 py-1"><input type="checkbox" class="rp w-5 h-5" value="${p[0]}">${p[1]}</label>`).join('')}</div>
-    <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="rNotify" class="w-5 h-5" checked>Receives notifications</label>
-    <button data-act="addRole" class="kraft text-white rounded-xl px-4 py-2 font-bold mt-2">Add Role</button>`);
-}
-async function addRole() {
-  const name = $('rName').value.trim();
-  if (!name) return openUsers(t('Enter a role name.'));
-  const { error } = await sb.from('roles').insert({ id: 'r' + Date.now(), name, notify: $('rNotify').checked, perms: [...document.querySelectorAll('.rp:checked')].map(c => c.value) });
-  await loadRoles(); renderAll(); openUsers(error ? error.message : '');
-}
-async function delRole(id) {
-  if (users.some(u => u.role === id)) return openUsers(t('This role is assigned to a user. Change their role first.'));
-  const { error } = await sb.from('roles').delete().eq('id', id);
-  await loadRoles(); openUsers(error ? error.message : '');
-}
-
-/* ---------- Language (English default / Bangla) ---------- */
+/* ---------- Language ---------- */
 let lang = localStorage.getItem('almiskLang') === 'bn' ? 'bn' : 'en';
-let authMode = 'login', notifs = [];
 const LOC = () => lang === 'bn' ? 'bn-BD' : 'en-GB';
-const BN = {
- 'Packaging Production Control':'প্যাকেজিং প্রোডাকশন কন্ট্রোল','Add New Job':'নতুন জব যোগ করুন','Attention Required':'মনোযোগ প্রয়োজন',
- "Today's Production Overview":'আজকের প্রোডাকশন ওভারভিউ','Recently Delivered':'সম্প্রতি ডেলিভারি হয়েছে','Production Jobs':'প্রোডাকশন জব তালিকা',
- 'Load Demo Data':'ডেমো ডেটা লোড করুন','Clear All Data':'সব ডেটা মুছুন','Search jobs…':'জব খুঁজুন…','Status: All':'স্ট্যাটাস: সব',
- 'Priority: All':'অগ্রাধিকার: সব','Delivery: All':'ডেলিভারি: সব','Urgent':'জরুরি','Normal':'সাধারণ','Due Today':'আজ ডেলিভারি',
- 'Due Tomorrow':'আগামীকাল ডেলিভারি','Overdue':'বিলম্বিত','Pending':'পেন্ডিং','Running':'চলমান','Finished':'সম্পন্ন','Delivered':'ডেলিভারি হয়েছে',
- 'Hold':'হোল্ড','Total Jobs':'মোট জব','Jobs Today':'আজকের জব','Sign out':'সাইন আউট','Users & Roles':'ইউজার ও রোল','Ordered':'অর্ডার',
- 'Delivery':'ডেলিভারি','View':'দেখুন','Edit':'এডিট','Delete':'ডিলিট','Start Production':'প্রোডাকশন শুরু করুন','Mark Finished':'সম্পন্ন করুন',
- 'Mark Delivered':'ডেলিভারি হয়েছে','Resume (Pending)':'আবার শুরু (পেন্ডিং)','ON HOLD':'হোল্ডে আছে','Note:':'নোট:',
- 'No production jobs yet':'এখনও কোনো প্রোডাকশন জব নেই','Start by adding your first packaging order.':'প্রথম প্যাকেজিং অর্ডার যোগ করে শুরু করুন।',
- 'Add First Job':'প্রথম জব যোগ করুন','No jobs match your search or filters.':'সার্চ বা ফিল্টারের সাথে কোনো জব মেলেনি।',
- 'Nothing needs attention right now. 👍':'এই মুহূর্তে কিছুতেই মনোযোগ দরকার নেই। 👍','No deliveries yet.':'এখনও কোনো ডেলিভারি হয়নি।',
- 'Delivered today':'আজ ডেলিভারি হয়েছে','Edit Job':'জব এডিট','Company Name *':'কোম্পানির নাম *','Packaging Items':'প্যাকেজিং আইটেম',
- 'Add Another Item':'আরেকটি আইটেম যোগ করুন','Priority':'অগ্রাধিকার','Status':'স্ট্যাটাস','Order Date':'অর্ডারের তারিখ','Delivery Date':'ডেলিভারির তারিখ',
- 'Note (optional — a status message is shown if empty)':'নোট (ঐচ্ছিক — খালি থাকলে স্ট্যাটাস মেসেজ দেখানো হবে)','Cancel':'বাতিল','Save Job':'জব সেভ করুন',
- 'Box':'বক্স','Bag':'ব্যাগ','Sleeve':'স্লিভ','Card':'কার্ড','Sticker':'স্টিকার','Label':'লেবেল','Paper Bag':'পেপার ব্যাগ','Carton':'কার্টন','Other':'অন্যান্য',
- 'pcs':'পিস','sets':'সেট','kg':'কেজি','rolls':'রোল','other':'অন্যান্য','Qty':'পরিমাণ','Order date':'অর্ডারের তারিখ','Delivery date':'ডেলিভারির তারিখ',
- 'Finished on':'সম্পন্ন হয়েছে','Delivered on':'ডেলিভারি হয়েছে','Placed by:':'অর্ডার দিয়েছেন:','No status history yet.':'এখনও কোনো স্ট্যাটাস ইতিহাস নেই।',
- 'Created':'তৈরি','Updated':'আপডেট','Are you sure you want to delete this job?':'আপনি কি নিশ্চিত যে এই জবটি ডিলিট করতে চান?','Delete Job':'জব ডিলিট করুন',
- 'Demo data will replace your current jobs. Continue?':'ডেমো ডেটা আপনার বর্তমান জব প্রতিস্থাপন করবে। চালিয়ে যাবেন?','Replace with Demo':'ডেমো দিয়ে প্রতিস্থাপন',
- 'Delete ALL jobs? This cannot be undone.':'সব জব ডিলিট করবেন? এটি ফেরানো যাবে না।','Remove this user?':'এই ইউজারকে সরাবেন?','Remove User':'ইউজার সরান',
- 'Users':'ইউজার','Add user':'ইউজার যোগ করুন','Add User':'ইউজার যোগ করুন','Roles':'রোল','Create a role':'রোল তৈরি করুন','(everyone can view jobs)':'(সবাই জব দেখতে পারে)',
- 'Add Role':'রোল যোগ করুন','Reset password':'পাসওয়ার্ড রিসেট','Remove':'সরান','Full access':'সম্পূর্ণ অ্যাক্সেস','View only':'শুধু দেখা',
- 'Receives notifications':'নোটিফিকেশন পায়','Admin':'অ্যাডমিন','Viewer (view only)':'ভিউয়ার (শুধু দেখা)','Running Operator':'রানিং অপারেটর','Finished Operator':'ফিনিশড অপারেটর',
- 'Add new jobs':'নতুন জব যোগ','Edit jobs':'জব এডিট','Delete jobs':'জব ডিলিট','Set Pending':'পেন্ডিং সেট','Set Running':'চলমান সেট','Set Finished':'সম্পন্ন সেট',
- 'Set Delivered':'ডেলিভারি সেট','Set Hold':'হোল্ড সেট','Manage users & roles':'ইউজার ও রোল ম্যানেজ','Demo / clear data':'ডেমো / ডেটা মুছুন',
- 'Full name':'পুরো নাম','User ID':'ইউজার আইডি','Password':'পাসওয়ার্ড','Password (4+ chars)':'পাসওয়ার্ড (৪+ অক্ষর)','Role name, e.g. Delivery Driver':'রোলের নাম, যেমন ডেলিভারি ড্রাইভার',
- 'Sign in to continue':'চালিয়ে যেতে সাইন ইন করুন','First-time setup: create the Admin account':'প্রথমবার সেটআপ: অ্যাডমিন অ্যাকাউন্ট তৈরি করুন','Sign In':'সাইন ইন',
- 'Create Admin & Start':'অ্যাডমিন তৈরি করে শুরু করুন','Enter your user ID and password.':'ইউজার আইডি ও পাসওয়ার্ড দিন।',
- 'Enter your name, a user ID without spaces, and a password of 4+ characters.':'আপনার নাম, স্পেস ছাড়া ইউজার আইডি এবং ৪+ অক্ষরের পাসওয়ার্ড দিন।',
- 'Wrong user ID or password.':'ইউজার আইডি বা পাসওয়ার্ড ভুল।','That user ID is already taken.':'এই ইউজার আইডি আগেই নেওয়া হয়েছে।',
- 'Enter a name, a user ID without spaces, and a password of 4+ characters.':'নাম, স্পেস ছাড়া ইউজার আইডি এবং ৪+ অক্ষরের পাসওয়ার্ড দিন।',
- 'Password must be at least 4 characters.':'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।','Enter a role name.':'রোলের নাম দিন।',
- 'This role is assigned to a user. Change their role first.':'এই রোল একজন ইউজারকে দেওয়া আছে। আগে তার রোল বদলান।',
- 'Please enter the company name.':'অনুগ্রহ করে কোম্পানির নাম দিন।','Add at least one item with a quantity.':'পরিমাণসহ কমপক্ষে একটি আইটেম যোগ করুন।',
- 'Please choose both dates.':'অনুগ্রহ করে দুটি তারিখই বেছে নিন।','Delivery date cannot be before the order date.':'ডেলিভারির তারিখ অর্ডারের তারিখের আগে হতে পারে না।',
- 'Notifications':'নোটিফিকেশন','Notice':'নোটিশ','Mark as urgent':'জরুরি হিসেবে চিহ্নিত করুন','Save notice':'নোটিশ সেভ করুন','Remove notice':'নোটিশ মুছুন','No notice yet.':'এখনও কোনো নোটিশ নেই।','Notice text':'নোটিশের লেখা','Edit notice ticker':'নোটিশ টিকার এডিট','Enable browser alerts':'ব্রাউজার অ্যালার্ট চালু করুন','No notifications yet.':'এখনও কোনো নোটিফিকেশন নেই।'
-};
-Object.assign(BN, {
- 'Use a name, a user ID (3-30 letters, numbers, . _ -) and a password of 6+ characters.':'নাম, ইউজার আইডি (৩-৩০টি ইংরেজি অক্ষর/সংখ্যা, . _ -) এবং ৬+ অক্ষরের পাসওয়ার্ড দিন।',
- 'Turn off "Confirm email" in Supabase (Authentication, Providers, Email), then try again.':'Supabase-এ "Confirm email" বন্ধ করে আবার চেষ্টা করুন।',
- 'Your account is not active. Ask the Admin.':'আপনার অ্যাকাউন্ট সক্রিয় নয়। অ্যাডমিনকে জানান।',
- 'Disable this user? They will no longer be able to sign in.':'এই ইউজারকে বন্ধ করবেন? তিনি আর সাইন ইন করতে পারবেন না।',
- 'Disable User':'ইউজার বন্ধ করুন','Disable':'বন্ধ করুন','Enable':'চালু করুন','Disabled':'বন্ধ','New password (6+ characters):':'নতুন পাসওয়ার্ড (৬+ অক্ষর):',
- 'Password must be at least 6 characters.':'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।','Password updated.':'পাসওয়ার্ড আপডেট হয়েছে।','Password (6+ chars)':'পাসওয়ার্ড (৬+ অক্ষর)'
-});
+/* PASTE your existing Bangla dictionary here: replace the empty object below with your old
+   "const BN = {...}" and its "Object.assign(BN, {...})" block. Add new strings if you like. */
+const BN = {};
 const t = s => lang === 'bn' ? (BN[s] ?? s) : s;
 const digits = x => x.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
-// Translate everything on screen. Original text is remembered so switching back to English restores it.
 function translateDom(root = document.body) {
-  const bn = lang === 'bn', w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let n;
+  const bn = lang === 'bn', w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
   while ((n = w.nextNode())) {
     if (/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)) continue;
     if (n._o === undefined) { if (!bn) continue; n._o = n.nodeValue; }
@@ -333,27 +121,147 @@ function translateDom(root = document.body) {
     el.placeholder = bn ? digits(BN[el._p] ?? el._p) : el._p;
   });
 }
-function setLang(l) {
-  lang = l; localStorage.setItem('almiskLang', l); document.documentElement.lang = l; closeModal();
-  me ? renderAll() : showAuth(authMode);
-  translateDom();
+function setLang(l) { lang = l; localStorage.setItem('almiskLang', l); document.documentElement.lang = l; closeModal(); me ? renderAll() : showAuth(); translateDom(); }
+
+/* ---------- Dates (local, no UTC drift) ---------- */
+const toDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => ymd(new Date());
+const addDays = (s, n) => { const d = toDate(s); d.setDate(d.getDate() + n); return ymd(d); };
+const utc = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const dayDiff = (a, b) => Math.round((utc(a) - utc(b)) / 864e5);
+const showDate = s => s ? toDate(s).toLocaleDateString(LOC(), { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
+/* ---------- Data layer ---------- */
+const fromRow = r => ({ id: r.id, companyName: r.company_name, items: r.items || [], orderDate: r.order_date, deliveryDate: r.delivery_date, priority: r.priority, status: r.status, note: r.note || '', createdBy: r.created_by, history: r.history || [], finishedOn: r.finished_on, deliveredOn: r.delivered_on, createdAt: r.created_at, updatedAt: r.updated_at });
+const toRow = d => ({ company_name: d.companyName, items: d.items, order_date: d.orderDate, delivery_date: d.deliveryDate, priority: d.priority, status: d.status, note: d.note });
+async function loadJobs() { const { data, error } = await sb.from('jobs').select('*'); if (error) return fail(error); jobs = data.map(fromRow); }
+async function loadRoles() { const { data, error } = await sb.from('roles').select('*').order('locked', { ascending: false }).order('name'); if (error) return fail(error); roles = data; }
+async function loadUsers() { const { data } = await sb.from('profiles').select('*').order('created_at'); users = (data || []).map(p => ({ id: p.id, userId: p.user_id, name: p.name, role: p.role_id, approved: p.approved })); }
+async function loadNotice() { const { data } = await sb.from('notice').select('*').eq('id', 1).maybeSingle(); notice = data && data.text ? { text: data.text, urgent: data.urgent, by: data.by_name } : null; }
+async function loadNotifs() {
+  const [n, r] = await Promise.all([sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(50), sb.from('notif_reads').select('notif_id').eq('user_id', me.id)]);
+  notifs = (n.data || []).map(x => ({ id: x.id, type: x.type, jobId: x.job_id, company: x.company, status: x.status, by: x.by_name, at: x.created_at }));
+  reads = new Set((r.data || []).map(x => x.notif_id));
 }
-function autoNoteBn(j) {
-  const d = calculateRemainingDays(j), left = d === 1 ? 'মাত্র ১ দিন' : d + ' দিন';
-  switch (j.status) {
-    case 'pending': return d < 0 ? 'ডেলিভারির তারিখ পেরিয়ে গেছে। অনুগ্রহ করে এখনই এই প্রোডাকশনকে অগ্রাধিকার দিন।'
-      : d === 0 ? 'অনুগ্রহ করে প্রোডাকশন শুরু করুন। আজ ডেলিভারির দিন।' : `অনুগ্রহ করে প্রোডাকশন শুরু করুন। ডেলিভারির আগে আমাদের হাতে ${left} আছে।`;
-    case 'running': return d < 0 ? 'প্রোডাকশন চলছে কিন্তু ডেলিভারির তারিখ পেরিয়ে গেছে। অনুগ্রহ করে এখনই শেষ করুন।'
-      : d === 0 ? 'প্রোডাকশন চলছে এবং আজ ডেলিভারির দিন। অনুগ্রহ করে শেষ করাকে অগ্রাধিকার দিন।'
-      : `সময়মতো প্রোডাকশন শুরু করার জন্য ধন্যবাদ। আমাদের হাতে ${d} দিন আছে। আশা করি সময়মতো শেষ করতে পারব।`;
-    case 'finished': return (j.finishedOn || today()) <= j.deliveryDate ? 'সময়মতো কাজ শেষ করার জন্য ধন্যবাদ। ডেলিভারির জন্য প্রস্তুত।' : 'কাজ শেষ হয়েছে, কিন্তু ডেলিভারির সময়সীমা মিস হয়েছে।';
-    case 'delivered': return (j.deliveredOn || today()) <= j.deliveryDate ? 'সময়মতো অর্ডার ডেলিভারি করার জন্য ধন্যবাদ।' : 'অর্ডার ডেলিভারি হয়েছে, কিন্তু ডেলিভারির সময়সীমা মিস হয়েছে।';
-    default: return 'সবকিছু নিশ্চিত না হওয়া পর্যন্ত অনুগ্রহ করে প্রোডাকশন শুরু করবেন না।';
-  }
+async function refreshData() {
+  const { data: p } = await sb.from('profiles').select('*').eq('id', me.id).maybeSingle();
+  if (!p || !p.approved) { await logout(t('Your account is not active. Ask the Admin.')); return; }
+  me.role = p.role_id; me.name = p.name;
+  await Promise.all([loadJobs(), loadRoles(), loadNotice(), loadNotifs()]);
+  if (can('users')) await loadUsers();
+}
+function subscribe() {
+  if (channel) return;
+  channel = sb.channel('almisk-live').on('postgres_changes', { event: '*', schema: 'public' }, () => { clearTimeout(rtTimer); rtTimer = setTimeout(liveRefresh, 300); }).subscribe();
+}
+async function liveRefresh() {
+  if (!me) return;
+  const seen = new Set(notifs.map(n => n.id));
+  await refreshData(); if (!me) return;
+  renderAll();
+  notifs.filter(n => !seen.has(n.id) && !reads.has(n.id)).forEach(n => toast(ntext(n)));
 }
 
-/* ---------- Notice ticker (fixed bottom bar, edited by Admin) ---------- */
-let notice = null;
+/* ---------- Auth ---------- */
+function clearUi() { $('whoBar').innerHTML = ''; $('btnAdd').style.display = 'none'; $('adminFooter').style.display = 'none'; renderTicker(); }
+function showAuth(msg) {
+  const a = $('auth'), i = 'border border-stone-300 rounded-xl px-3 py-3 w-full'; a.style.display = 'flex';
+  a.innerHTML = `<form id="authForm" class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-3">
+    <div class="text-center"><div class="kraft w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-2">📦</div><h2 class="font-extrabold text-xl">ALMISK CARTON BOXES</h2><p class="text-sm text-stone-600">Sign in to continue</p></div>
+    <input id="aUid" class="${i}" placeholder="User ID or email" autocomplete="username" autocapitalize="none">
+    <input id="aPw" type="password" class="${i}" placeholder="Password" autocomplete="current-password">
+    <p id="authErr" class="text-red-700 text-sm font-semibold">${esc(msg || '')}</p>
+    <button class="kraft text-white font-bold rounded-xl px-4 py-3 w-full">Sign In</button>
+    <button type="button" data-act="lang" class="text-sm text-stone-500 w-full">${lang === 'bn' ? 'English' : 'বাংলা'}</button></form>`;
+  translateDom(a);
+  $('authForm').onsubmit = async e => {
+    e.preventDefault();
+    const uid = $('aUid').value.trim().toLowerCase(), pw = $('aPw').value, err = $('authErr'), b = e.submitter;
+    if (!uid || !pw) { err.textContent = t('Enter your user ID and password.'); return; }
+    b.disabled = true;
+    const { data, error } = await sb.auth.signInWithPassword({ email: emailOf(uid), password: pw });
+    b.disabled = false;
+    if (error) { err.textContent = t('Wrong user ID or password.'); return; }
+    await enter(data.user);
+  };
+}
+async function enter(user) {
+  const { data: p } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+  if (!p || !p.approved) { await sb.auth.signOut(); me = null; showAuth(t('Your account is not active. Ask the Admin.')); return; }
+  me = { id: p.id, name: p.name, userId: p.user_id, role: p.role_id };
+  $('auth').style.display = 'none'; $('auth').innerHTML = '';
+  await refreshData(); renderAll(); subscribe();
+}
+async function initAuth() {
+  document.documentElement.lang = lang;
+  sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && me) { me = null; clearUi(); showAuth(); } });
+  const { data } = await sb.auth.getSession();
+  data.session ? enter(data.session.user) : showAuth();
+}
+async function logout(msg) {
+  me = null; menuOpen = false; closeModal(); clearUi();
+  if (channel) { sb.removeChannel(channel); channel = null; }
+  await sb.auth.signOut(); showAuth(typeof msg === 'string' ? msg : '');
+}
+async function changePassword() {
+  const pw = prompt(t('New password (6+ characters):')); if (!pw) return;
+  if (pw.length < 6) return alert(t('Password must be at least 6 characters.'));
+  const { error } = await sb.auth.updateUser({ password: pw });
+  alert(error ? error.message : t('Password updated.'));
+}
+
+/* ---------- Corner account menu ---------- */
+function renderWho() {
+  const r = roles.find(x => x.id === me.role), un = notifs.filter(n => !reads.has(n.id)).length;
+  const ini = esc(me.name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase());
+  const it = 'w-full text-left px-4 py-3 text-sm font-semibold hover:bg-stone-50 flex items-center gap-3';
+  $('whoBar').innerHTML = `
+    <button data-act="notifs" aria-label="Notifications" class="relative w-11 h-11 rounded-full border border-stone-200 bg-white text-lg">🔔${un ? `<span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">${un}</span>` : ''}</button>
+    <button data-act="menu" aria-label="Account menu" aria-expanded="${menuOpen}" class="kraft w-11 h-11 rounded-full text-white font-extrabold">${ini}</button>
+    <div class="${menuOpen ? '' : 'hidden'} absolute right-0 top-14 w-64 bg-white border border-stone-200 rounded-2xl shadow-xl overflow-hidden z-50">
+      <div class="px-4 py-3 bg-stone-50 border-b border-stone-200"><div class="font-bold truncate">${esc(me.name)}</div><div class="text-xs text-stone-500">${esc(r ? r.name : me.role)}${viewOnly() ? ' · 👁 View only' : ''}</div></div>
+      <button data-act="lang" class="${it}">🌐 ${lang === 'bn' ? 'English' : 'বাংলা'}</button>
+      ${can('users') ? `<button data-act="users" class="${it}">👥 Users &amp; Roles</button>` : ''}
+      <button data-act="chgPw" class="${it}">🔑 Password</button>
+      <button data-act="logout" class="${it} text-red-700 border-t border-stone-200">⎋ Sign out</button>
+    </div>`;
+  $('btnAdd').style.display = can('add') ? '' : 'none';
+  $('adminFooter').style.display = can('demo') ? '' : 'none';
+}
+
+/* ---------- Users & roles ---------- */
+async function openUsers(msg) {
+  if (can('users')) await loadUsers();
+  const ro = s => roles.map(r => `<option value="${r.id}" ${r.id === s ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
+  const i = 'border border-stone-300 rounded-xl px-3 py-2 w-full bg-white', b = 'border border-stone-300 rounded-lg px-3 py-2 font-semibold bg-white';
+  openModal(`<div class="flex justify-between"><h3 class="text-xl font-bold">Users &amp; Roles</h3><button data-act="close" aria-label="Close" class="text-2xl text-stone-500">✕</button></div>
+    <p class="text-red-700 text-sm font-semibold mt-1">${esc(msg || '')}</p>
+    <h4 class="font-bold mt-3 mb-2">Users</h4><div class="space-y-2">${users.map(u => `<div class="border border-stone-200 rounded-xl p-3 flex flex-wrap items-center gap-2">
+      <div class="flex-1 min-w-[8rem]"><b>${esc(u.name)}</b><div class="text-xs text-stone-500">ID: ${esc(u.userId)}${u.approved ? '' : ' · ' + t('Disabled')}</div></div>
+      <select data-act="setRole" data-id="${u.id}" class="border border-stone-300 rounded-lg px-2 py-2 bg-white" ${u.id === me.id ? 'disabled' : ''}>${ro(u.role)}</select>
+      ${u.id === me.id ? '' : u.approved ? `<button data-act="delUser" data-id="${u.id}" class="${b} text-red-700">Disable</button>` : `<button data-act="enableUser" data-id="${u.id}" class="${b}">Enable</button>`}</div>`).join('')}</div>
+    <p class="text-sm text-stone-600 mt-3">Create staff accounts in Supabase → Authentication → Users → Add user (use userid@${EMAIL_DOMAIN}). Then approve them here and set a role.</p>
+    <h4 class="font-bold mt-5 mb-2">Roles</h4><div class="space-y-2">${roles.map(r => `<div class="border border-stone-200 rounded-xl p-3 flex items-center gap-2">
+      <div class="flex-1 text-sm"><b>${esc(r.name)}</b><div class="text-stone-500">${r.locked ? 'Full access' : r.perms.length ? r.perms.map(k => t(PERMS.find(p => p[0] === k)[1])).join(', ') : 'View only'}</div></div>
+      <label class="flex items-center gap-1 text-sm"><input type="checkbox" data-act="roleNotify" data-id="${r.id}" class="w-5 h-5" ${r.notify !== false ? 'checked' : ''}>Receives notifications</label>
+      ${r.locked ? '' : `<button data-act="delRole" data-id="${r.id}" class="${b} text-red-700">Delete</button>`}</div>`).join('')}</div>
+    <h4 class="font-bold mt-4 mb-2">Create a role</h4><input id="rName" class="${i}" placeholder="Role name, e.g. Delivery Driver">
+    <div class="grid grid-cols-2 gap-1 mt-2 text-sm">${PERMS.map(p => `<label class="flex items-center gap-2 py-1"><input type="checkbox" class="rp w-5 h-5" value="${p[0]}">${p[1]}</label>`).join('')}</div>
+    <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="rNotify" class="w-5 h-5" checked>Receives notifications</label>
+    <button data-act="addRole" class="kraft text-white rounded-xl px-4 py-2 font-bold mt-2">Add Role</button>`);
+}
+async function addRole() {
+  const name = $('rName').value.trim(); if (!name) return openUsers(t('Enter a role name.'));
+  const { error } = await sb.from('roles').insert({ id: 'r' + Date.now(), name, notify: $('rNotify').checked, perms: [...document.querySelectorAll('.rp:checked')].map(c => c.value) });
+  await loadRoles(); renderAll(); openUsers(error ? error.message : '');
+}
+async function delRole(id) {
+  if (users.some(u => u.role === id)) return openUsers(t('This role is assigned to a user. Change their role first.'));
+  const { error } = await sb.from('roles').delete().eq('id', id); await loadRoles(); openUsers(error ? error.message : '');
+}
+
+/* ---------- Notice ticker & notifications ---------- */
 function renderTicker() {
   const el = $('ticker'), has = !!(notice && notice.text), edit = can('notice');
   if (!me || (!has && !edit)) { el.style.display = 'none'; document.body.style.paddingBottom = ''; return; }
@@ -365,8 +273,7 @@ function renderTicker() {
     ${edit ? '<button data-act="notice" aria-label="Edit notice" class="shrink-0 px-4 font-semibold bg-black/30">✎ Edit</button>' : ''}</div>`;
 }
 function openNoticeForm() {
-  openModal(`<h3 class="text-xl font-bold mb-3">Notice</h3>
-    <textarea id="nText" rows="3" class="border border-stone-300 rounded-xl px-3 py-3 w-full" placeholder="Notice text">${esc(notice ? notice.text : '')}</textarea>
+  openModal(`<h3 class="text-xl font-bold mb-3">Notice</h3><textarea id="nText" rows="3" class="border border-stone-300 rounded-xl px-3 py-3 w-full" placeholder="Notice text">${esc(notice ? notice.text : '')}</textarea>
     <label class="flex items-center gap-2 mt-3"><input type="checkbox" id="nUrgent" class="w-5 h-5" ${notice && notice.urgent ? 'checked' : ''}>Mark as urgent</label>
     <div class="flex flex-wrap gap-3 justify-end mt-4"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button>
     ${notice && notice.text ? '<button data-act="delNotice" class="border border-red-300 text-red-700 rounded-xl px-5 py-3 font-semibold">Remove notice</button>' : ''}
@@ -375,22 +282,16 @@ function openNoticeForm() {
 async function saveNotice(remove) {
   if (!can('notice')) return;
   const text = remove ? '' : $('nText').value.trim();
-  const { error } = text
-    ? await sb.from('notice').upsert({ id: 1, text, urgent: $('nUrgent').checked })   // database tells every role
-    : await sb.from('notice').delete().eq('id', 1);
+  const { error } = text ? await sb.from('notice').upsert({ id: 1, text, urgent: $('nUrgent').checked }) : await sb.from('notice').delete().eq('id', 1);
   if (error) return fail(error);
   closeModal(); await loadNotice(); renderAll();
 }
-
-/* ---------- Notifications (role based) ---------- */
-const myNotifs = () => notifs;   // the database already returns only what my role may see
 function ntext(n) {
-  const bn = lang === 'bn', c = `${n.company} (${n.jobId})`;
-  if (n.type === 'notice') return bn ? `নতুন নোটিশ (${n.by}): ${n.company}` : `New notice from ${n.by}: ${n.company}`;
-  if (n.type === 'new') return bn ? `নতুন জব যোগ হয়েছে: ${c} — ${n.by} দ্বারা।` : `New job added: ${c} by ${n.by}.`;
+  const c = `${n.company} (${n.jobId})`;
+  if (n.type === 'notice') return `New notice from ${n.by}: ${n.company}`;
+  if (n.type === 'new') return `New job added: ${c} by ${n.by}.`;
   const en = { pending: 'is now Pending', running: 'production has started', finished: 'production is finished and ready for delivery', delivered: 'has been delivered', hold: 'has been put on hold' };
-  const b = { pending: 'এখন পেন্ডিং', running: 'প্রোডাকশন শুরু হয়েছে', finished: 'প্রোডাকশন শেষ হয়েছে, ডেলিভারির জন্য প্রস্তুত', delivered: 'ডেলিভারি করা হয়েছে', hold: 'হোল্ডে রাখা হয়েছে' };
-  return bn ? `জব ${c} ${b[n.status]} — ${n.by} আপডেট করেছেন।` : `Job ${c} ${en[n.status]} — updated by ${n.by}.`;
+  return `Job ${c} ${en[n.status]} — updated by ${n.by}.`;
 }
 function toast(msg) {
   const d = document.createElement('div');
@@ -400,540 +301,295 @@ function toast(msg) {
   try { if (window.Notification && Notification.permission === 'granted') new Notification('ALMISK CARTON BOXES', { body: msg }); } catch (e) {}
 }
 async function openNotifs() {
-  const mine = notifs.slice(0, 50), unread = mine.filter(n => !reads.has(n.id));
+  const unread = notifs.filter(n => !reads.has(n.id));
   openModal(`<div class="flex justify-between items-center"><h3 class="text-xl font-bold">Notifications</h3><button data-act="close" aria-label="Close" class="text-2xl text-stone-500">✕</button></div>
     ${window.Notification && Notification.permission === 'default' ? '<button data-act="enableAlerts" class="border border-stone-300 rounded-lg px-3 py-2 font-semibold mt-3">Enable browser alerts</button>' : ''}
-    <div class="space-y-2 mt-3">${mine.length ? mine.map(n => `<div class="rounded-xl border px-3 py-2 ${reads.has(n.id) ? 'border-stone-200' : 'border-amber-300 bg-amber-50 font-semibold'}">
-      <div class="text-xs text-stone-500 font-normal">${n.type === 'new' ? '🆕' : n.type === 'notice' ? '📢' : STATUS[n.status].icon} ${new Date(n.at).toLocaleString(LOC())}</div><div>${esc(ntext(n))}</div></div>`).join('')
-      : '<p class="text-stone-500">No notifications yet.</p>'}</div>`);
-  if (unread.length) {
-    unread.forEach(n => reads.add(n.id)); renderWho();
-    await sb.from('notif_reads').upsert(unread.map(n => ({ notif_id: n.id, user_id: me.id })));
-  }
-}
-
-/* ---------- Local-date helpers (no UTC drift) ---------- */
-const toDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
-const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const today = () => ymd(new Date());
-const addDays = (s, n) => { const d = toDate(s); d.setDate(d.getDate() + n); return ymd(d); };
-const utc = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
-const dayDiff = (a, b) => Math.round((utc(a) - utc(b)) / 864e5);
-const showDate = s => s ? toDate(s).toLocaleDateString(LOC(), { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-
-/* ---------- Supabase data layer ---------- */
-const fromRow = r => ({ id: r.id, companyName: r.company_name, items: r.items || [], orderDate: r.order_date, deliveryDate: r.delivery_date,
-  priority: r.priority, status: r.status, note: r.note || '', createdBy: r.created_by, history: r.history || [],
-  finishedOn: r.finished_on, deliveredOn: r.delivered_on, createdAt: r.created_at, updatedAt: r.updated_at });
-const toRow = d => ({ company_name: d.companyName, items: d.items, order_date: d.orderDate, delivery_date: d.deliveryDate, priority: d.priority, status: d.status, note: d.note });
-async function loadJobs() { const { data, error } = await sb.from('jobs').select('*'); if (error) return fail(error); jobs = data.map(fromRow); }
-async function loadRoles() { const { data, error } = await sb.from('roles').select('*').order('locked', { ascending: false }).order('name'); if (error) return fail(error); roles = data; }
-async function loadUsers() {
-  const { data } = await sb.from('profiles').select('*').order('created_at');
-  users = (data || []).map(p => ({ id: p.id, userId: p.user_id, name: p.name, role: p.role_id, approved: p.approved }));
-}
-async function loadNotice() {
-  const { data } = await sb.from('notice').select('*').eq('id', 1).maybeSingle();
-  notice = data && data.text ? { text: data.text, urgent: data.urgent, by: data.by_name, at: data.updated_at } : null;
-}
-async function loadNotifs() {
-  const [n, r] = await Promise.all([
-    sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(50),
-    sb.from('notif_reads').select('notif_id').eq('user_id', me.id)]);
-  notifs = (n.data || []).map(x => ({ id: x.id, type: x.type, jobId: x.job_id, company: x.company, status: x.status, by: x.by_name, at: x.created_at, to: x.to_roles }));
-  reads = new Set((r.data || []).map(x => x.notif_id));
-}
-async function refreshData() {
-  const { data: p } = await sb.from('profiles').select('*').eq('id', me.id).maybeSingle();
-  if (!p || !p.approved) { await logout(t('Your account is not active. Ask the Admin.')); return; }
-  me.role = p.role_id; me.name = p.name;
-  await Promise.all([loadJobs(), loadRoles(), loadNotice(), loadNotifs()]);
-  if (can('users')) await loadUsers();
-}
-// Live updates: any change by anyone refreshes this screen and pops a notification
-let channel = null, rtTimer = null;
-function subscribe() {
-  if (channel) return;
-  channel = sb.channel('almisk-live').on('postgres_changes', { event: '*', schema: 'public' }, () => {
-    clearTimeout(rtTimer); rtTimer = setTimeout(liveRefresh, 300);
-  }).subscribe();
-}
-async function liveRefresh() {
-  if (!me) return;
-  const seen = new Set(notifs.map(n => n.id));
-  await refreshData();
-  if (!me) return;
-  renderAll();
-  notifs.filter(n => !seen.has(n.id) && !reads.has(n.id)).forEach(n => toast(ntext(n)));
+    <div class="space-y-2 mt-3">${notifs.length ? notifs.map(n => `<div class="rounded-xl border px-3 py-2 ${reads.has(n.id) ? 'border-stone-200' : 'border-amber-300 bg-amber-50 font-semibold'}">
+      <div class="text-xs text-stone-500 font-normal">${n.type === 'new' ? '🆕' : n.type === 'notice' ? '📢' : STATUS[n.status].icon} ${new Date(n.at).toLocaleString(LOC())}</div><div>${esc(ntext(n))}</div></div>`).join('') : '<p class="text-stone-500">No notifications yet.</p>'}</div>`);
+  if (unread.length) { unread.forEach(n => reads.add(n.id)); renderWho(); await sb.from('notif_reads').upsert(unread.map(n => ({ notif_id: n.id, user_id: me.id }))); }
 }
 
 /* ---------- Business logic ---------- */
-function calculateRemainingDays(j) { return dayDiff(j.deliveryDate, today()); }
-
+const remaining = j => dayDiff(j.deliveryDate, today());
+const isOver = j => j.status !== 'delivered' && remaining(j) < 0;
 function countdown(j) {
   if (j.status === 'delivered') return { text: t('Delivered'), cls: 'text-emerald-800' };
-  const d = calculateRemainingDays(j);
-  if (d < 0) return { text: lang === 'bn' ? `${-d} দিন বিলম্বিত` : `${-d} ${-d === 1 ? 'DAY' : 'DAYS'} OVERDUE`, cls: 'text-red-700' };
-  if (d === 0) return { text: lang === 'bn' ? 'আজ ডেলিভারি' : 'DUE TODAY', cls: 'text-orange-700' };
-  return { text: lang === 'bn' ? `${d} দিন বাকি` : `${d} ${d === 1 ? 'DAY' : 'DAYS'} LEFT`, cls: d === 1 ? 'text-amber-700' : 'text-stone-700' };
+  const d = remaining(j);
+  if (d < 0) return { text: `${-d} ${-d === 1 ? 'DAY' : 'DAYS'} OVERDUE`, cls: 'text-red-700' };
+  if (d === 0) return { text: 'DUE TODAY', cls: 'text-orange-700' };
+  return { text: `${d} ${d === 1 ? 'DAY' : 'DAYS'} LEFT`, cls: d === 1 ? 'text-amber-700' : 'text-stone-700' };
 }
-
-// Used if the user did not type a note
-function generateAutomaticNote(j) { return lang === 'bn' ? autoNoteBn(j) : autoNoteEn(j); }
-function autoNoteEn(j) {
-  const d = calculateRemainingDays(j);
-  const left = d === 1 ? 'only 1 day' : `${d} days`;
+function autoNote(j) {
+  const d = remaining(j);
   switch (j.status) {
-    case 'pending':
-      if (d < 0) return 'Delivery date has passed. Please prioritize this production immediately.';
-      if (d === 0) return 'Please start the production. Delivery is due today.';
-      return `Please start the production. We have ${left === 'only 1 day' ? 'only 1 day' : left} remaining before the delivery date.`;
-    case 'running':
-      if (d < 0) return 'Production is running but the delivery date has passed. Please finish immediately.';
-      if (d === 0) return 'Production is running and the delivery is due today. Please prioritize completion.';
-      return `Thanks for starting the production on time. We have ${d} ${d === 1 ? 'day' : 'days'} remaining. I hope we will finish on time.`;
-    case 'finished':
-      return (j.finishedOn || today()) <= j.deliveryDate
-        ? 'Thanks for finishing the job on time. Ready for delivery.'
-        : 'Job finished, but the delivery deadline was missed.';
-    case 'delivered':
-      return (j.deliveredOn || today()) <= j.deliveryDate
-        ? 'Thanks for delivering the order on time.'
-        : 'Order delivered, but the delivery deadline was missed.';
-    default:
-      return 'Please don’t start production before everything is confirmed.';
+    case 'pending': return d < 0 ? 'Delivery date has passed. Please prioritize this production immediately.' : d === 0 ? 'Please start the production. Delivery is due today.' : `Please start the production. We have ${d} ${d === 1 ? 'day' : 'days'} remaining before the delivery date.`;
+    case 'running': return d < 0 ? 'Production is running but the delivery date has passed. Please finish immediately.' : d === 0 ? 'Production is running and the delivery is due today. Please prioritize completion.' : `Thanks for starting the production on time. We have ${d} ${d === 1 ? 'day' : 'days'} remaining.`;
+    case 'finished': return (j.finishedOn || today()) <= j.deliveryDate ? 'Thanks for finishing the job on time. Ready for delivery.' : 'Job finished, but the delivery deadline was missed.';
+    case 'delivered': return (j.deliveredOn || today()) <= j.deliveryDate ? 'Thanks for delivering the order on time.' : 'Order delivered, but the delivery deadline was missed.';
+    default: return 'Please don’t start production before everything is confirmed.';
   }
 }
-
-// Active jobs: overdue → urgent → due today → nearest delivery → latest added. Delivered last.
-function rank(j) {
-  return ({pending:0, running:1, hold:2, finished:3, delivered:4})[j.status] ?? 5;
-}
-function sortJobs(list) {
-  return [...list].sort((a,b) => {
-    const x = rank(a) - rank(b);
-    if (x) return x;
-    if (a.priority !== b.priority) return a.priority === 'urgent' ? -1 : 1;
-    return a.deliveryDate.localeCompare(b.deliveryDate) || a.createdAt.localeCompare(b.createdAt);
-  });
-}
-
-function searchJobs(list) {
-  const q = filters.q.trim().toLowerCase();
-  if (!q) return list;
-  return list.filter(j => j.companyName.toLowerCase().includes(q) || j.id.toLowerCase().includes(q) ||
-    j.items.some(i => i.type.toLowerCase().includes(q)));
-}
-function filterJobs(list) {
-  return list.filter(j => {
+// Order: overdue, urgent, then Pending/Running/Hold, Finished, Delivered; then nearest delivery, then oldest.
+const rank = j => j.status === 'delivered' ? 4 : isOver(j) ? 0 : j.priority === 'urgent' && j.status !== 'finished' ? 1 : j.status === 'finished' ? 3 : 2;
+const sortJobs = l => [...l].sort((a, b) => rank(a) - rank(b) || a.deliveryDate.localeCompare(b.deliveryDate) || a.createdAt.localeCompare(b.createdAt));
+function searchJobs(l) { const q = filters.q.trim().toLowerCase(); return !q ? l : l.filter(j => j.companyName.toLowerCase().includes(q) || j.id.toLowerCase().includes(q) || j.items.some(i => i.type.toLowerCase().includes(q))); }
+function filterJobs(l) {
+  return l.filter(j => {
     if (filters.s !== 'all' && j.status !== filters.s) return false;
     if (filters.p !== 'all' && j.priority !== filters.p) return false;
     if (filters.d !== 'all') {
-      if (j.status === 'delivered') return false;
-      const d = calculateRemainingDays(j);
-      if (filters.d === 'today' && d !== 0) return false;
-      if (filters.d === 'tomorrow' && d !== 1) return false;
-      if (filters.d === 'overdue' && d >= 0) return false;
+      if (j.status === 'delivered') return false; const d = remaining(j);
+      if (filters.d === 'today' && d !== 0) return false; if (filters.d === 'tomorrow' && d !== 1) return false; if (filters.d === 'overdue' && d >= 0) return false;
     }
     return true;
   });
 }
 
-/* ---------- Actions (saved in Supabase; the database re-checks every permission) ---------- */
-async function updateStatus(id, status) {
-  if (!can('s_' + status)) return;
-  const { error } = await sb.from('jobs').update({ status }).eq('id', id);
-  if (error) fail(error);
-  await refreshData(); renderAll();
-}
-async function addJob(data) {
-  if (!can('add')) return false;
-  const { error } = await sb.from('jobs').insert(toRow(data));
-  if (error) { fail(error); return false; }
+/* ---------- Actions ---------- */
+async function updateStatus(id, status) { if (!can('s_' + status)) return; const { error } = await sb.from('jobs').update({ status }).eq('id', id); if (error) fail(error); await refreshData(); renderAll(); }
+async function addJob(d) { if (!can('add')) return false; const { error } = await sb.from('jobs').insert(toRow(d)); if (error) { fail(error); return false; } await refreshData(); renderAll(); return true; }
+async function editJob(id, d) {
+  const j = jobs.find(x => x.id === id); if (!j || !can('edit')) return false;
+  if (d.status !== j.status && !can('s_' + d.status)) d.status = j.status;
+  const { error } = await sb.from('jobs').update(toRow(d)).eq('id', id); if (error) { fail(error); return false; }
   await refreshData(); renderAll(); return true;
 }
-async function editJob(id, data) {
-  const j = jobs.find(x => x.id === id);
-  if (!j || !can('edit')) return false;
-  if (data.status !== j.status && !can('s_' + data.status)) data.status = j.status;
-  const { error } = await sb.from('jobs').update(toRow(data)).eq('id', id);
-  if (error) { fail(error); return false; }
-  await refreshData(); renderAll(); return true;
-}
-async function deleteJob(id) {
-  if (!can('delete')) return;
-  if (!(await removeAllJobFiles([id]))) return;
-  const { error } = await sb.from('jobs').delete().eq('id', id);
-  if (error) fail(error);
-  await refreshData(); renderAll();
-}
-async function clearJobs() {
-  if (!(await removeAllJobFiles(jobs.map(j => j.id)))) return;
-  const { error } = await sb.from('jobs').delete().neq('id', '');
-  if (error) fail(error);
-  await refreshData(); renderAll();
-}
+async function deleteJob(id) { if (!can('delete')) return; if (!(await removeAllJobFiles([id]))) return; const { error } = await sb.from('jobs').delete().eq('id', id); if (error) fail(error); await refreshData(); renderAll(); }
+async function clearJobs() { if (!can('demo') || !(await removeAllJobFiles(jobs.map(j => j.id)))) return; const { error } = await sb.from('jobs').delete().neq('id', ''); if (error) fail(error); await refreshData(); renderAll(); }
 async function loadDemo() {
-  const t0 = today();
-  const mk = (company, items, off, ord, pr, st, note) => ({ companyName: company, items, orderDate: addDays(t0, ord), deliveryDate: addDays(t0, off), priority: pr, status: st, note: note || '' });
+  if (!can('demo')) return; const t0 = today();
+  const mk = (c, items, off, ord, pr, st, note) => toRow({ companyName: c, items, orderDate: addDays(t0, ord), deliveryDate: addDays(t0, off), priority: pr, status: st, note: note || '' });
   if (!(await removeAllJobFiles(jobs.map(j => j.id)))) return;
-  const { error: clearingError } = await sb.from('jobs').delete().neq('id', '');
-  if (clearingError) return fail(clearingError);
-  const rows = [
+  const { error: e0 } = await sb.from('jobs').delete().neq('id', ''); if (e0) return fail(e0);
+  const { error } = await sb.from('jobs').insert([
     mk('Gulf Sweets Trading LLC', [{ type: 'Box', quantity: 500, unit: 'pcs' }, { type: 'Sticker', quantity: 1000, unit: 'pcs' }], 0, -3, 'urgent', 'running'),
     mk('Al Noor Bakery', [{ type: 'Paper Bag', quantity: 800, unit: 'pcs' }], -2, -5, 'normal', 'pending'),
     mk('Dubai Fresh Foods', [{ type: 'Carton', quantity: 200, unit: 'pcs' }, { type: 'Label', quantity: 5, unit: 'rolls' }], 1, -2, 'normal', 'pending'),
-    mk('Marina Gifts', [{ type: 'Sleeve', quantity: 300, unit: 'pcs' }, { type: 'Box', quantity: 300, unit: 'pcs' }], 3, 0, 'normal', 'hold', 'Customer requested final artwork approval before production.'),
-    mk('Sharjah Perfumes', [{ type: 'Box', quantity: 1200, unit: 'pcs' }], 2, -1, 'urgent', 'finished')
-  ].map(toRow);
-  const { error } = await sb.from('jobs').insert(rows);
-  if (error) fail(error);
-  await refreshData(); renderAll();
+    mk('Marina Gifts', [{ type: 'Sleeve', quantity: 300, unit: 'pcs' }], 3, 0, 'normal', 'hold', 'Waiting for artwork approval.'),
+    mk('Sharjah Perfumes', [{ type: 'Box', quantity: 1200, unit: 'pcs' }], 2, -1, 'urgent', 'finished')]);
+  if (error) fail(error); await refreshData(); renderAll();
 }
 
 /* ---------- Rendering ---------- */
-function itemChips(j) {
-  return j.items.map(i => `<span class="inline-block bg-stone-100 border border-stone-200 rounded-lg px-2 py-1 text-sm"><b>${esc(t(i.type))}</b> ${esc(i.quantity)} ${esc(t(i.unit))}</span>`).join(' ');
-}
-function statusBadge(st) {
-  const s = STATUS[st];
-  return `<span class="inline-flex items-center gap-1 border rounded-full px-3 py-1 text-sm font-semibold ${s.cls}">${s.icon} ${s.label}</span>`;
-}
-function priorityBadge(p) {
-  return p === 'urgent'
-    ? '<span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold bg-red-600 text-white">🔴 Urgent</span>'
-    : '<span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold bg-stone-100 text-green-800 border border-stone-200">🟢 Normal</span>';
-}
+const itemChips = j => j.items.map(i => `<span class="inline-block bg-stone-100 border border-stone-200 rounded-lg px-2 py-1 text-sm"><b>${esc(t(i.type))}</b> ${esc(i.quantity)} ${esc(t(i.unit))}</span>`).join(' ');
+const statusBadge = st => `<span class="inline-flex items-center gap-1 border rounded-full px-3 py-1 text-sm font-semibold ${STATUS[st].cls}">${STATUS[st].icon} ${STATUS[st].label}</span>`;
+const priorityBadge = p => p === 'urgent' ? '<span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold bg-red-600 text-white">🔴 Urgent</span>' : '<span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold bg-stone-100 text-green-800 border border-stone-200">🟢 Normal</span>';
 function stepper(j) {
   if (j.status === 'hold') return '<div class="inline-block bg-red-600 text-white font-bold rounded-lg px-3 py-1 text-sm">⏸ ON HOLD</div>';
   const cur = FLOW.indexOf(j.status);
-  return '<div class="flex items-center gap-1 flex-wrap text-xs sm:text-sm">' + FLOW.map((s, i) =>
-    `<span class="flex items-center gap-1 ${i <= cur ? 'font-bold text-stone-900' : 'text-stone-400'}">` +
-    `<span class="w-3 h-3 rounded-full inline-block ${i < cur ? 'bg-green-600' : i === cur ? 'bg-amber-500 ring-2 ring-amber-200' : 'bg-stone-300'}"></span>${STATUS[s].label}</span>` +
-    (i < 3 ? '<span class="text-stone-300">—</span>' : '')).join('') + '</div>';
+  return '<div class="flex items-center gap-1 flex-wrap text-xs sm:text-sm">' + FLOW.map((s, i) => `<span class="flex items-center gap-1 ${i <= cur ? 'font-bold text-stone-900' : 'text-stone-400'}"><span class="w-3 h-3 rounded-full inline-block ${i < cur ? 'bg-green-600' : i === cur ? 'bg-amber-500 ring-2 ring-amber-200' : 'bg-stone-300'}"></span>${STATUS[s].label}</span>` + (i < 3 ? '<span class="text-stone-300">—</span>' : '')).join('') + '</div>';
 }
 function noteBlock(j) {
-  const manual = (j.note || '').trim();
-  return manual
-    ? `<div class="rounded-xl bg-yellow-50 border border-yellow-200 px-3 py-2 text-sm"><b>Note:</b> ${esc(manual)}</div>`
-    : `<div class="rounded-xl bg-stone-50 border border-stone-200 px-3 py-2 text-sm text-stone-700">${esc(generateAutomaticNote(j))}</div>`;
+  const m = (j.note || '').trim();
+  return m ? `<div class="rounded-xl bg-yellow-50 border border-yellow-200 px-3 py-2 text-sm"><b>Note:</b> ${esc(m)}</div>` : `<div class="rounded-xl bg-stone-50 border border-stone-200 px-3 py-2 text-sm text-stone-700">${esc(autoNote(j))}</div>`;
 }
-
+function whoLine(j) { const h = j.history || [], l = h[h.length - 1]; return `Placed by <b>${esc(j.createdBy || '—')}</b>` + (h.length > 1 ? ` · ${STATUS[l.status].label} set by <b>${esc(l.by)}</b>` : ''); }
+function statSelect(j) {
+  const o = Object.keys(STATUS).filter(s => s === j.status || can('s_' + s)); if (o.length < 2) return '';
+  return `<select data-act="status" data-id="${j.id}" aria-label="Change status" class="border border-stone-300 rounded-xl px-3 py-3 bg-white font-semibold">${o.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${STATUS[s].label}</option>`).join('')}</select>`;
+}
 function renderDashboard() {
-  const count = s => jobs.filter(j => j.status === s).length;
-  const cards = [
-    ['Total Jobs', jobs.length, '📋', 'border-stone-400'], ['Pending', count('pending'), '⏳', 'border-amber-400'],
-    ['Running', count('running'), '⚙️', 'border-blue-500'], ['Finished', count('finished'), '✅', 'border-green-500'],
-    ['Delivered', count('delivered'), '🚚', 'border-emerald-800'], ['Hold', count('hold'), '⏸', 'border-red-500']
-  ];
-  $('stats').innerHTML = cards.map(c => `<div class="bg-white rounded-2xl border border-stone-200 border-l-4 ${c[3]} p-4 shadow-sm">
-    <div class="text-sm text-stone-600 font-medium">${c[2]} ${c[0]}</div><div class="text-3xl font-extrabold mt-1">${c[1]}</div></div>`).join('');
-
-  const active = jobs.filter(j => j.status !== 'delivered');
-  const ov = [
-    ['Jobs Today', jobs.filter(j => j.orderDate === today()).length, ''],
-    ['Due Today', active.filter(j => calculateRemainingDays(j) === 0).length, 'text-orange-700'],
-    ['Overdue', active.filter(j => calculateRemainingDays(j) < 0).length, 'text-red-700'],
-    ['Urgent', active.filter(j => j.priority === 'urgent').length, 'text-red-700']
-  ];
+  const cnt = s => jobs.filter(j => j.status === s).length;
+  const cards = [['Total Jobs', jobs.length, '📋', 'border-stone-400'], ['Pending', cnt('pending'), '⏳', 'border-amber-400'], ['Running', cnt('running'), '⚙️', 'border-blue-500'], ['Finished', cnt('finished'), '✅', 'border-green-500'], ['Delivered', cnt('delivered'), '🚚', 'border-emerald-800'], ['Hold', cnt('hold'), '⏸', 'border-red-500']];
+  $('stats').innerHTML = cards.map(c => `<div class="bg-white rounded-2xl border border-stone-200 border-l-4 ${c[3]} p-4 shadow-sm"><div class="text-sm text-stone-600 font-medium">${c[2]} ${c[0]}</div><div class="text-3xl font-extrabold mt-1">${c[1]}</div></div>`).join('');
+  const act = jobs.filter(j => j.status !== 'delivered');
+  const ov = [['Jobs Today', jobs.filter(j => j.orderDate === today()).length, ''], ['Due Today', act.filter(j => remaining(j) === 0).length, 'text-orange-700'], ['Overdue', act.filter(isOver).length, 'text-red-700'], ['Urgent', act.filter(j => j.priority === 'urgent').length, 'text-red-700']];
   $('overview').innerHTML = ov.map(o => `<div class="rounded-xl bg-stone-50 border border-stone-200 p-3"><div class="text-sm text-stone-600">${o[0]}</div><div class="text-2xl font-extrabold ${o[2]}">${o[1]}</div></div>`).join('');
-
   const rec = jobs.filter(j => j.status === 'delivered').sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')).slice(0, 5);
-  $('recent').innerHTML = rec.length ? rec.map(j => {
-    const when = j.deliveredOn === today() ? t('Delivered today') : t('Delivered') + ' ' + showDate(j.deliveredOn);
-    return `<div class="rounded-xl bg-stone-50 border border-stone-200 px-3 py-2"><div class="font-semibold">${esc(j.companyName)}</div><div class="text-sm text-stone-600">${when}</div><div class="mt-1">${itemChips(j)}</div></div>`;
-  }).join('') : '<p class="text-sm text-stone-500">No deliveries yet.</p>';
+  $('recent').innerHTML = rec.length ? rec.map(j => `<div class="rounded-xl bg-stone-50 border border-stone-200 px-3 py-2"><div class="font-semibold">${esc(j.companyName)}</div><div class="text-sm text-stone-600">${j.deliveredOn === today() ? t('Delivered today') : t('Delivered') + ' ' + showDate(j.deliveredOn)}</div><div class="mt-1">${itemChips(j)}</div></div>`).join('') : '<p class="text-sm text-stone-500">No deliveries yet.</p>';
 }
-
-function renderAttentionSection() {
-  // Attention order: urgent Running/Pending jobs first (nearest delivery date, then earliest created time),
-  // then Running, then Pending, then Finished (urgent does NOT lift a Finished job), Hold last.
-  // Delivered jobs are never shown.
-  const key = j => j.status === 'finished' ? 3 : j.status === 'hold' ? 4 : j.priority === 'urgent' ? 0 : j.status === 'running' ? 1 : 2;
-  const list = jobs.filter(j => j.status !== 'delivered').sort((a, b) =>
-    key(a) - key(b) || a.deliveryDate.localeCompare(b.deliveryDate) || a.createdAt.localeCompare(b.createdAt));
+function renderAttention() {
+  const list = sortJobs(jobs.filter(j => j.status !== 'delivered'));
   $('attention').innerHTML = list.length ? list.map(j => {
-    const c = countdown(j);
-    return `<button data-act="view" data-id="${j.id}" class="w-full text-left rounded-xl border px-3 py-3 flex flex-wrap items-center gap-x-3 gap-y-1 ${rank(j) === 0 ? 'bg-red-50 border-red-300' : 'bg-stone-50 border-stone-200'}">
-      <span class="font-bold">${j.priority === 'urgent' ? '🔴' : '🟠'} ${esc(j.companyName)}</span>
-      <span class="text-sm text-stone-600">${j.items.map(i => esc(t(i.type)) + ' ' + esc(i.quantity) + ' ' + esc(t(i.unit))).join(', ')}</span>
+    const c = countdown(j), hot = rank(j) <= 1;
+    return `<button data-act="view" data-id="${j.id}" class="w-full text-left rounded-xl border px-3 py-3 flex flex-wrap items-center gap-x-3 gap-y-1 ${hot ? 'bg-red-50 border-red-300' : 'bg-stone-50 border-stone-200'}">
+      <span class="font-bold">${j.priority === 'urgent' ? '🔴' : '🟠'} ${esc(j.companyName)}</span><span class="text-sm text-stone-600">${j.items.map(i => esc(t(i.type)) + ' ' + esc(i.quantity) + ' ' + esc(t(i.unit))).join(', ')}</span>
       <span class="ml-auto flex items-center gap-2"><b class="text-sm ${c.cls}">${c.text}</b>${statusBadge(j.status)}</span></button>`;
   }).join('') : '<p class="text-stone-500">Nothing needs attention right now. 👍</p>';
 }
-
 function renderJobs() {
-  const list = sortJobs(filterJobs(searchJobs(jobs)));
-  if (!jobs.length) {
-    $('jobs').innerHTML = `<div class="bg-white rounded-2xl border border-dashed border-stone-300 p-10 text-center">
-      <div class="text-5xl mb-2">📦</div><h3 class="text-xl font-bold">No production jobs yet</h3>
-      <p class="text-stone-600 mt-1 mb-4">Start by adding your first packaging order.</p>
-      ${can('add') ? '<button data-act="add" class="kraft text-white font-bold rounded-xl px-5 py-3">+ Add First Job</button>' : ''}</div>`;
-    return;
-  }
+  const list = sortJobs(filterJobs(searchJobs(jobs))), vo = viewOnly();
+  if (!jobs.length) { $('jobs').innerHTML = `<div class="bg-white rounded-2xl border border-dashed border-stone-300 p-10 text-center"><div class="text-5xl mb-2">📦</div><h3 class="text-xl font-bold">No production jobs yet</h3><p class="text-stone-600 mt-1 mb-4">Start by adding your first packaging order.</p>${can('add') ? '<button data-act="add" class="kraft text-white font-bold rounded-xl px-5 py-3">+ Add First Job</button>' : ''}</div>`; return; }
   if (!list.length) { $('jobs').innerHTML = '<p class="bg-white rounded-2xl border border-stone-200 p-6 text-center text-stone-500">No jobs match your search or filters.</p>'; return; }
   $('jobs').innerHTML = list.map((j, i) => {
-    const c = countdown(j), q = STATUS[j.status].next, od = rank(j) === 0;
-    return `<article class="rounded-2xl border p-4 shadow-sm ${j.priority === 'urgent' ? 'border-red-400 ring-2 ring-red-100 bg-red-50/50' : od ? 'border-red-300 bg-white' : 'border-stone-200 bg-white'}">
-      <div class="flex gap-3">
-        <div class="text-3xl font-extrabold text-stone-300 w-12 shrink-0">${pad(i + 1)}</div>
-        <div class="flex-1 min-w-0 space-y-2">
-          <div class="flex flex-wrap items-center gap-2">${priorityBadge(j.priority)}${statusBadge(j.status)}<span class="text-xs text-stone-500">${esc(j.id)}</span>
-            <span class="ml-auto font-extrabold ${c.cls} ${od ? 'bg-red-100 px-2 py-1 rounded-lg' : ''}">${c.text}</span></div>
-          <h3 class="text-lg font-bold break-words">${esc(j.companyName)}</h3>
-          <div class="flex flex-wrap gap-1">${itemChips(j)}</div>
-          <div class="text-sm text-stone-600">Ordered <b>${showDate(j.orderDate)}</b> · Delivery <b>${showDate(j.deliveryDate)}</b></div>
-          <div class="text-xs text-stone-500">${whoLine(j)}</div>
-          ${stepper(j)}
-          ${noteBlock(j)}
-          <div class="flex flex-wrap gap-2 pt-1">
-            ${q && can('s_' + q[0]) ? `<button data-act="quick" data-id="${j.id}" data-to="${q[0]}" class="kraft text-white font-bold rounded-xl px-4 py-3">${q[1]}</button>` : ''}
-            <button data-act="view" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">View</button>
-            <button data-act="print" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">Print A4</button>
-            ${can('edit') ? `<button data-act="edit" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">Edit</button>` : ''}
-            ${statusSelect(j)}
-            ${can('delete') ? `<button data-act="del" data-id="${j.id}" class="border border-red-300 text-red-700 rounded-xl px-4 py-3 font-semibold bg-white">Delete</button>` : ''}
-          </div>
-        </div>
-      </div>
-    </article>`;
+    const c = countdown(j), q = STATUS[j.status].next, od = isOver(j);
+    return `<article ${vo ? `data-act="view" data-id="${j.id}"` : ''} class="${vo ? 'cursor-pointer active:scale-[.99] transition ' : ''}rounded-2xl border p-4 shadow-sm ${j.priority === 'urgent' ? 'border-red-400 ring-2 ring-red-100 bg-red-50/50' : od ? 'border-red-300 bg-white' : 'border-stone-200 bg-white'}">
+      <div class="flex gap-3"><div class="text-3xl font-extrabold text-stone-300 w-12 shrink-0">${pad(i + 1)}</div>
+      <div class="flex-1 min-w-0 space-y-2">
+        <div class="flex flex-wrap items-center gap-2">${priorityBadge(j.priority)}${statusBadge(j.status)}<span class="text-xs text-stone-500">${esc(j.id)}</span><span class="ml-auto font-extrabold ${c.cls} ${od ? 'bg-red-100 px-2 py-1 rounded-lg' : ''}">${c.text}</span></div>
+        <h3 class="text-lg font-bold break-words">${esc(j.companyName)}</h3><div class="flex flex-wrap gap-1">${itemChips(j)}</div>
+        <div class="text-sm text-stone-600">Ordered <b>${showDate(j.orderDate)}</b> · Delivery <b>${showDate(j.deliveryDate)}</b></div>
+        <div class="text-xs text-stone-500">${whoLine(j)}</div>${stepper(j)}${noteBlock(j)}
+        <div class="flex flex-wrap gap-2 pt-1 ${vo ? 'hidden' : ''}">
+          ${q && can('s_' + q[0]) ? `<button data-act="quick" data-id="${j.id}" data-to="${q[0]}" class="kraft text-white font-bold rounded-xl px-4 py-3">${q[1]}</button>` : ''}
+          <button data-act="view" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">View</button>
+          <button data-act="print" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">Print A4</button>
+          ${can('edit') ? `<button data-act="edit" data-id="${j.id}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold bg-white">Edit</button>` : ''}
+          ${statSelect(j)}
+          ${can('delete') ? `<button data-act="del" data-id="${j.id}" class="border border-red-300 text-red-700 rounded-xl px-4 py-3 font-semibold bg-white">Delete</button>` : ''}
+        </div></div></div></article>`;
   }).join('');
 }
-
 function renderAll() {
-  shownDate = today();
-  $('todayLabel').textContent = showDate(shownDate);
+  shownDate = today(); $('todayLabel').textContent = showDate(shownDate);
   if (!me) return;
-  renderWho(); renderTicker(); renderDashboard(); renderAttentionSection(); renderJobs();
-  translateDom();
+  renderWho(); renderTicker(); renderDashboard(); renderAttention(); renderJobs(); translateDom();
 }
 
-/* ---------- Modals ---------- */
-function openModal(html) { $('modalBox').innerHTML = html; $('modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; translateDom($('modalBox')); }
+/* ---------- Modals & job form ---------- */
+function openModal(h) { $('modalBox').innerHTML = h; $('modal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; translateDom($('modalBox')); }
 function closeModal() { $('modal').classList.add('hidden'); document.body.style.overflow = ''; }
 function confirmBox(msg, label, fn) {
-  openModal(`<h3 class="text-xl font-bold mb-2">${esc(msg)}</h3><div class="flex gap-3 justify-end mt-5">
-    <button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button>
-    <button id="confirmYes" class="bg-red-600 text-white rounded-xl px-5 py-3 font-bold">${esc(label)}</button></div>`);
+  openModal(`<h3 class="text-xl font-bold mb-2">${esc(msg)}</h3><div class="flex gap-3 justify-end mt-5"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button><button id="confirmYes" class="bg-red-600 text-white rounded-xl px-5 py-3 font-bold">${esc(label)}</button></div>`);
   $('confirmYes').onclick = () => { closeModal(); fn(); };
 }
-
 function itemRow(it = { type: 'Box', quantity: '', unit: 'pcs' }) {
-  const opts = (arr, v) => arr.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
-  return `<div class="item-row grid grid-cols-12 gap-2">
-    <select class="it-type col-span-5 border border-stone-300 rounded-xl px-2 py-3 bg-white">${opts(TYPES, it.type)}</select>
-    <input class="it-qty col-span-3 border border-stone-300 rounded-xl px-2 py-3" type="number" min="1" inputmode="numeric" placeholder="Qty" value="${esc(it.quantity)}">
-    <select class="it-unit col-span-3 border border-stone-300 rounded-xl px-2 py-3 bg-white">${opts(UNITS, it.unit)}</select>
+  const o = (a, v) => a.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
+  return `<div class="item-row grid grid-cols-12 gap-2"><select class="it-type col-span-5 border border-stone-300 rounded-xl px-2 py-3 bg-white">${o(TYPES, it.type)}</select>
+    <input class="it-qty col-span-3 border border-stone-300 rounded-xl px-2 py-3" type="number" min="0" step="any" inputmode="decimal" placeholder="Qty" value="${esc(it.quantity)}">
+    <select class="it-unit col-span-3 border border-stone-300 rounded-xl px-2 py-3 bg-white">${o(UNITS, it.unit)}</select>
     <button type="button" data-act="rmItem" aria-label="Remove item" class="col-span-1 text-red-600 font-bold text-xl">✕</button></div>`;
 }
-
 function openForm(id) {
-  const j = id ? jobs.find(x => x.id === id) : null;
-  const order = j ? j.orderDate : today();
-  const del = j ? j.deliveryDate : addDays(order, 3);
-  delTouched = !!j; // existing jobs keep their delivery date
-  const f = 'border border-stone-300 rounded-xl px-3 py-3 w-full bg-white';
-  openModal(`<h3 class="text-xl font-bold mb-4">${j ? t('Edit Job') + ' ' + esc(j.id) : t('Add New Job')}</h3>
-  <div class="space-y-4" data-id="${j ? j.id : ''}" id="jobForm">
-    <label class="block"><span class="font-semibold text-sm">Company Name *</span>
-      <input id="fCompany" class="${f} mt-1" placeholder="ABC Trading LLC" value="${esc(j ? j.companyName : '')}" autofocus></label>
-    <div><span class="font-semibold text-sm">Packaging Items</span>
-      <div id="items" class="space-y-2 mt-1">${(j ? j.items : [undefined]).map(itemRow).join('')}</div>
-      <button type="button" data-act="addItem" class="mt-2 border border-stone-300 rounded-xl px-4 py-2 font-semibold">+ Add Another Item</button></div>
+  const j = id ? jobs.find(x => x.id === id) : null, order = j ? j.orderDate : today(), del = j ? j.deliveryDate : addDays(order, 3);
+  delTouched = !!j; const f = 'border border-stone-300 rounded-xl px-3 py-3 w-full bg-white mt-1';
+  openModal(`<h3 class="text-xl font-bold mb-4">${j ? t('Edit Job') + ' ' + esc(j.id) : t('Add New Job')}</h3><div class="space-y-4" data-id="${j ? j.id : ''}" id="jobForm">
+    <label class="block"><span class="font-semibold text-sm">Company Name *</span><input id="fCompany" class="${f}" placeholder="ABC Trading LLC" value="${esc(j ? j.companyName : '')}" autofocus></label>
+    <div><span class="font-semibold text-sm">Packaging Items</span><div id="items" class="space-y-2 mt-1">${(j ? j.items : [undefined]).map(itemRow).join('')}</div><button type="button" data-act="addItem" class="mt-2 border border-stone-300 rounded-xl px-4 py-2 font-semibold">+ Add Another Item</button></div>
     <div class="grid grid-cols-2 gap-3">
-      <label class="block"><span class="font-semibold text-sm">Priority</span>
-        <select id="fPriority" class="${f} mt-1"><option value="normal" ${j && j.priority === 'normal' || !j ? 'selected' : ''}>🟢 Normal</option><option value="urgent" ${j && j.priority === 'urgent' ? 'selected' : ''}>🔴 Urgent</option></select></label>
-      <label class="block"><span class="font-semibold text-sm">Status</span>
-        <select id="fStatus" class="${f} mt-1">${Object.keys(STATUS).filter(s => (j ? j.status === s : s === 'pending') || can('s_' + s)).map(s => `<option value="${s}" ${j && j.status === s ? 'selected' : ''}>${STATUS[s].label}</option>`).join('')}</select></label>
-      <label class="block"><span class="font-semibold text-sm">Order Date</span><input id="fOrder" type="date" class="${f} mt-1" value="${order}"></label>
-      <label class="block"><span class="font-semibold text-sm">Delivery Date</span><input id="fDel" type="date" class="${f} mt-1" value="${del}"></label>
-    </div>
-    <label class="block"><span class="font-semibold text-sm">Note (optional — a status message is shown if empty)</span>
-      <textarea id="fNote" rows="2" class="${f} mt-1">${esc(j ? j.note : '')}</textarea></label>
+      <label class="block"><span class="font-semibold text-sm">Priority</span><select id="fPriority" class="${f}"><option value="normal" ${!j || j.priority === 'normal' ? 'selected' : ''}>🟢 Normal</option><option value="urgent" ${j && j.priority === 'urgent' ? 'selected' : ''}>🔴 Urgent</option></select></label>
+      <label class="block"><span class="font-semibold text-sm">Status</span><select id="fStatus" class="${f}">${Object.keys(STATUS).filter(s => (j ? j.status === s : s === 'pending') || can('s_' + s)).map(s => `<option value="${s}" ${j && j.status === s ? 'selected' : ''}>${STATUS[s].label}</option>`).join('')}</select></label>
+      <label class="block"><span class="font-semibold text-sm">Order Date</span><input id="fOrder" type="date" class="${f}" value="${order}"></label>
+      <label class="block"><span class="font-semibold text-sm">Delivery Date</span><input id="fDel" type="date" class="${f}" value="${del}"></label></div>
+    <label class="block"><span class="font-semibold text-sm">Note (optional — a status message is shown if empty)</span><textarea id="fNote" rows="2" class="${f}">${esc(j ? j.note : '')}</textarea></label>
     <p id="formErr" class="text-red-700 text-sm font-semibold"></p>
-    <div class="flex gap-3 justify-end">
-      <button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button>
-      <button data-act="save" class="kraft text-white rounded-xl px-6 py-3 font-bold">Save Job</button></div>
-  </div>`);
+    <div class="flex gap-3 justify-end"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button><button data-act="save" class="kraft text-white rounded-xl px-6 py-3 font-bold">Save Job</button></div></div>`);
   $('fOrder').addEventListener('change', e => { if (!delTouched && e.target.value) $('fDel').value = addDays(e.target.value, 3); });
   $('fDel').addEventListener('input', () => { delTouched = true; });
 }
-
 async function saveForm() {
-  const box = $('jobForm'), err = $('formErr');
-  const company = $('fCompany').value.trim();
-  const items = [...document.querySelectorAll('.item-row')].map(r => ({
-    type: r.querySelector('.it-type').value, quantity: Number(r.querySelector('.it-qty').value), unit: r.querySelector('.it-unit').value
-  })).filter(i => i.quantity > 0);
+  const box = $('jobForm'), err = $('formErr'), company = $('fCompany').value.trim();
+  const items = [...document.querySelectorAll('.item-row')].map(r => ({ type: r.querySelector('.it-type').value, quantity: Number(r.querySelector('.it-qty').value), unit: r.querySelector('.it-unit').value })).filter(i => i.quantity > 0);
   const orderDate = $('fOrder').value, deliveryDate = $('fDel').value;
   if (!company) { err.textContent = t('Please enter the company name.'); return; }
   if (!items.length) { err.textContent = t('Add at least one item with a quantity.'); return; }
   if (!orderDate || !deliveryDate) { err.textContent = t('Please choose both dates.'); return; }
   if (deliveryDate < orderDate) { err.textContent = t('Delivery date cannot be before the order date.'); return; }
   const data = { companyName: company, items, orderDate, deliveryDate, priority: $('fPriority').value, status: $('fStatus').value, note: $('fNote').value.trim() };
-  const id = box.dataset.id;
-  const ok = id ? await editJob(id, data) : await addJob(data);
-  if (ok) closeModal();
+  const id = box.dataset.id; if (id ? await editJob(id, data) : await addJob(data)) closeModal();
 }
 
+/* ---------- Job view ---------- */
+function timeline(j) {
+  const h = (j.history || []).slice().reverse();
+  return h.length ? h.map((x, i) => `<li class="relative pl-7 pb-4 last:pb-0"><span class="absolute left-0 top-1.5 w-3 h-3 rounded-full ${i === 0 ? 'bg-amber-500 ring-4 ring-amber-100' : 'bg-stone-300'}"></span>${i < h.length - 1 ? '<span class="absolute left-[5px] top-5 bottom-0 w-px bg-stone-200"></span>' : ''}
+    <div class="font-semibold">${STATUS[x.status].icon} ${t(STATUS[x.status].label)}</div><div class="text-xs text-stone-500">${esc(x.by)} · ${new Date(x.at).toLocaleString(LOC())}</div></li>`).join('') : '<li class="text-stone-500 text-sm">No status history yet.</li>';
+}
 function openView(id) {
   const j = jobs.find(x => x.id === id); if (!j) return;
-  const c = countdown(j);
-  openModal(`<div class="flex justify-between items-start gap-3"><div><h3 class="text-xl font-bold">${esc(j.companyName)}</h3><p class="text-sm text-stone-500">${esc(j.id)}</p></div>
-    <button data-act="close" aria-label="Close" class="text-2xl text-stone-500">✕</button></div>
-    <div class="flex flex-wrap gap-2 my-3">${priorityBadge(j.priority)}${statusBadge(j.status)}<b class="${c.cls} self-center">${c.text}</b></div>
-    <div class="space-y-3">
-      <div class="rounded-xl border border-stone-200 divide-y">${j.items.map(i => `<div class="flex justify-between px-3 py-2"><b>${esc(t(i.type))}</b><span>${esc(i.quantity)} ${esc(t(i.unit))}</span></div>`).join('')}</div>
-      <div class="grid grid-cols-2 gap-2 text-sm"><div class="bg-stone-50 rounded-xl p-3">Order date<br><b>${showDate(j.orderDate)}</b></div><div class="bg-stone-50 rounded-xl p-3">Delivery date<br><b>${showDate(j.deliveryDate)}</b></div>
-      <div class="bg-stone-50 rounded-xl p-3">Finished on<br><b>${showDate(j.finishedOn)}</b></div><div class="bg-stone-50 rounded-xl p-3">Delivered on<br><b>${showDate(j.deliveredOn)}</b></div></div>
-      ${stepper(j)}${noteBlock(j)}
-      <div class="text-sm"><b>Placed by:</b> ${esc(j.createdBy || '—')}</div>
-      <ul class="text-sm space-y-1 border-t pt-2">${(j.history || []).map(h => `<li>${t(STATUS[h.status].label)} — <b>${esc(h.by)}</b>, ${new Date(h.at).toLocaleString(LOC())}</li>`).join('') || '<li class="text-stone-500">No status history yet.</li>'}</ul>
-      <p class="text-xs text-stone-500">${t('Created')} ${new Date(j.createdAt).toLocaleString(LOC())} · ${t('Updated')} ${new Date(j.updatedAt).toLocaleString(LOC())}</p>
-      <section class="border-t pt-4" aria-label="Job attachments">
-        <h4 class="font-bold mb-2">📎 Artwork / Attachments</h4>
-        <div id="jobFiles" class="space-y-2 text-sm text-stone-600">Loading files…</div>
-        ${can('add') || can('edit') ? `<label class="block mt-3 font-semibold text-sm">Upload JPG, PNG, WEBP or PDF (up to 10 MB each)
-          <input type="file" id="jobUpload" data-job="${esc(j.id)}" accept="image/jpeg,image/png,image/webp,application/pdf" multiple class="block mt-2 text-sm max-w-full" />
-        </label><p id="uploadMsg" class="text-sm mt-1" role="status"></p>` : ''}
-      </section>
-      <div class="flex flex-wrap gap-2 border-t pt-4">
-        <button data-act="print" data-id="${esc(j.id)}" class="kraft text-white font-bold rounded-xl px-4 py-3">🖨 Print A4 / Save PDF</button>
-      </div>
-    </div>
-    ${can('edit') ? `<div class="flex gap-3 justify-end mt-4"><button data-act="edit" data-id="${j.id}" class="kraft text-white rounded-xl px-5 py-3 font-bold">Edit</button></div>` : ''}`);
+  const c = countdown(j), q = STATUS[j.status].next, pct = j.status === 'hold' ? 0 : Math.round((FLOW.indexOf(j.status) + 1) / FLOW.length * 100);
+  const tile = (l, v) => `<div class="rounded-xl bg-stone-50 border border-stone-200 p-3"><div class="text-xs text-stone-500">${l}</div><div class="font-bold">${v}</div></div>`;
+  openModal(`<div class="-m-5 mb-0 rounded-t-2xl bg-gradient-to-br ${HERO[j.status]} text-white p-5">
+      <div class="flex justify-between items-start gap-3"><span class="text-xs font-semibold bg-white/20 rounded-full px-3 py-1">${esc(j.id)}</span><button data-act="close" aria-label="Close" class="text-2xl leading-none text-white/80">✕</button></div>
+      <h3 class="text-2xl font-extrabold mt-3 break-words">${esc(j.companyName)}</h3>
+      <div class="flex flex-wrap items-center gap-2 mt-2"><span class="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold">${STATUS[j.status].icon} ${STATUS[j.status].label}</span>${j.priority === 'urgent' ? '<span class="rounded-full bg-red-600 px-3 py-1 text-sm font-bold">🔴 Urgent</span>' : ''}<span class="ml-auto text-lg font-extrabold">${c.text}</span></div>
+      <div class="h-2 rounded-full bg-white/25 mt-4 overflow-hidden"><div class="h-full bg-white rounded-full" style="width:${pct}%"></div></div></div>
+    <div class="space-y-5 pt-5">
+      <section><h4 class="font-bold mb-2">📦 Packaging Items</h4><div class="grid grid-cols-2 gap-2">${j.items.map(i => `<div class="rounded-xl border border-stone-200 p-3"><div class="text-sm text-stone-500">${esc(t(i.type))}</div><div class="text-2xl font-extrabold">${esc(i.quantity)} <span class="text-base font-semibold text-stone-500">${esc(t(i.unit))}</span></div></div>`).join('')}</div></section>
+      <section class="grid grid-cols-2 gap-2">${tile('Order date', showDate(j.orderDate))}${tile('Delivery date', showDate(j.deliveryDate))}${tile('Finished on', showDate(j.finishedOn))}${tile('Delivered on', showDate(j.deliveredOn))}</section>
+      ${noteBlock(j)}
+      <section><h4 class="font-bold mb-3">🕒 Progress</h4><ul>${timeline(j)}</ul><p class="text-xs text-stone-500 mt-2">Placed by ${esc(j.createdBy || '—')} · ${t('Created')} ${new Date(j.createdAt).toLocaleString(LOC())} · ${t('Updated')} ${new Date(j.updatedAt).toLocaleString(LOC())}</p></section>
+      <section aria-label="Job attachments"><h4 class="font-bold mb-2">📎 Artwork / Attachments</h4><div id="jobFiles" class="space-y-2 text-sm text-stone-600">Loading files…</div>
+        ${can('add') || can('edit') ? `<label class="block mt-3 font-semibold text-sm">Upload JPG, PNG, WEBP or PDF (up to 10 MB each)<input type="file" id="jobUpload" data-job="${esc(j.id)}" accept="image/jpeg,image/png,image/webp,application/pdf" multiple class="block mt-2 text-sm max-w-full"></label><p id="uploadMsg" class="text-sm mt-1" role="status"></p>` : ''}</section></div>
+    <div class="sticky bottom-0 -mx-5 -mb-5 mt-5 bg-white/95 backdrop-blur border-t border-stone-200 rounded-b-2xl p-3 flex flex-wrap gap-2 justify-end">
+      ${q && can('s_' + q[0]) ? `<button data-act="quick" data-id="${esc(j.id)}" data-to="${q[0]}" class="kraft text-white font-bold rounded-xl px-4 py-3 mr-auto">${q[1]}</button>` : ''}
+      <button data-act="print" data-id="${esc(j.id)}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold">🖨 Print A4</button>
+      ${can('edit') ? `<button data-act="edit" data-id="${esc(j.id)}" class="border border-stone-300 rounded-xl px-4 py-3 font-semibold">Edit</button>` : ''}</div>`);
   loadJobAttachments(id);
 }
 
-
-/* ---------- Private job attachments / A4 print ---------- */
-const ALLOWED_MIME = new Set(['image/jpeg','image/png','image/webp','application/pdf']);
-const EXT = {'image/jpeg':'jpg','image/png':'png','image/webp':'webp','application/pdf':'pdf'};
-const uploadPermission = () => can('add') || can('edit');
-const deleteFilePermission = () => can('edit') || can('delete');
-async function listAttachments(jobId) {
-  const { data, error } = await sb.from('job_attachments').select('*').eq('job_id',jobId).order('created_at');
-  if (error) throw error;
-  return data || [];
-}
-async function fileLink(path) {
-  const { data,error } = await sb.storage.from('job-attachments').createSignedUrl(path, 3600);
-  if (error) throw error;
-  return data.signedUrl;
-}
-async function loadJobAttachments(jobId) {
-  const target = $('jobFiles');
-  if (!target) return;
+/* ---------- Attachments & print ---------- */
+const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']), EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
+const canUpload = () => can('add') || can('edit'), canRmFile = () => can('edit') || can('delete');
+async function listAttachments(id) { const { data, error } = await sb.from('job_attachments').select('*').eq('job_id', id).order('created_at'); if (error) throw error; return data || []; }
+async function fileLink(p) { const { data, error } = await sb.storage.from('job-attachments').createSignedUrl(p, 3600); if (error) throw error; return data.signedUrl; }
+async function loadJobAttachments(id) {
+  if (!$('jobFiles')) return;
   try {
-    const files = await listAttachments(jobId);
-    if (!$('jobFiles') || !$('jobUpload') && !document.querySelector('#jobFiles')) return;
-    const links = await Promise.all(files.map(async f => ({...f, url: await fileLink(f.storage_path)})));
-    const holder = $('jobFiles'); if (!holder) return;
-    holder.innerHTML = links.length ? links.map(f => `<div class="border rounded-xl p-3 flex flex-wrap gap-3 items-center">
-      ${f.mime_type.startsWith('image/') ? `<a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(f.url)}" class="w-24 h-24 object-contain bg-stone-100 rounded" alt="${esc(f.original_name)}" /></a>` : '<span class="text-3xl">📄</span>'}
-      <div class="min-w-0 flex-1"><div class="font-semibold break-all">${esc(f.original_name)}</div>
-        <a class="text-blue-700 underline" href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">View / Download</a></div>
-      ${deleteFilePermission() ? `<button data-act="removeAttachment" data-id="${esc(jobId)}" data-file="${esc(f.id)}" class="text-red-700 font-semibold border border-red-200 px-3 py-2 rounded-lg">Remove</button>` : ''}
-    </div>`).join('') : '<p>No attachments for this job yet.</p>';
-  } catch(e) { if ($('jobFiles')) $('jobFiles').textContent = 'Could not load attachments: ' + e.message; }
+    const fs = await Promise.all((await listAttachments(id)).map(async f => ({ ...f, url: await fileLink(f.storage_path) }))), h = $('jobFiles'); if (!h) return;
+    h.innerHTML = fs.length ? fs.map(f => `<div class="border rounded-xl p-3 flex flex-wrap gap-3 items-center">
+      ${f.mime_type.startsWith('image/') ? `<a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(f.url)}" class="w-24 h-24 object-contain bg-stone-100 rounded" alt="${esc(f.original_name)}"></a>` : '<span class="text-3xl">📄</span>'}
+      <div class="min-w-0 flex-1"><div class="font-semibold break-all">${esc(f.original_name)}</div><a class="text-blue-700 underline" href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">View / Download</a></div>
+      ${canRmFile() ? `<button data-act="removeAttachment" data-id="${esc(id)}" data-file="${esc(f.id)}" class="text-red-700 font-semibold border border-red-200 px-3 py-2 rounded-lg">Remove</button>` : ''}</div>`).join('') : '<p>No attachments for this job yet.</p>';
+  } catch (e) { if ($('jobFiles')) $('jobFiles').textContent = 'Could not load attachments: ' + e.message; }
 }
-async function uploadJobAttachments(jobId, selected) {
-  if (!uploadPermission()) return;
-  const files = [...selected]; const msg = $('uploadMsg');
-  if (!files.length) return;
+async function uploadJobAttachments(id, sel) {
+  if (!canUpload()) return; const files = [...sel], msg = $('uploadMsg'); if (!files.length) return;
+  for (const f of files) if (!ALLOWED.has(f.type) || !f.size || f.size > 10485760) { if (msg) msg.textContent = `Invalid file: ${f.name} (JPG, PNG, WEBP, PDF; maximum 10 MB).`; return; }
+  if (msg) msg.textContent = `Uploading ${files.length} file(s)…`; let ok = 0;
   for (const f of files) {
-    if (!ALLOWED_MIME.has(f.type) || !f.size || f.size > 10*1024*1024) {
-      if (msg) msg.textContent = `Invalid file: ${f.name} (JPG, PNG, WEBP, PDF; maximum 10 MB).`;
-      return;
-    }
-  }
-  if (msg) msg.textContent = `Uploading ${files.length} file(s)…`;
-  let successful=0;
-  for (const f of files) {
-    const uid = crypto.randomUUID();
-    const path = `${jobId}/${uid}.${EXT[f.type]}`;
+    const path = `${id}/${crypto.randomUUID()}.${EXT[f.type]}`;
     try {
-      const {error:uploadError} = await sb.storage.from('job-attachments').upload(path,f,{contentType:f.type,upsert:false});
-      if (uploadError) throw uploadError;
-      const {error:dbError} = await sb.from('job_attachments').insert({job_id:jobId,storage_path:path,original_name:f.name.slice(0,240),mime_type:f.type,size_bytes:f.size});
-      if (dbError) {
-        await sb.storage.from('job-attachments').remove([path]);
-        throw dbError;
-      }
-      successful++;
-    } catch(e) { if (msg) msg.textContent = `Uploaded ${successful}. Failed on ${f.name}: ${e.message}`; await loadJobAttachments(jobId); return; }
+      const { error: e1 } = await sb.storage.from('job-attachments').upload(path, f, { contentType: f.type, upsert: false }); if (e1) throw e1;
+      const { error: e2 } = await sb.from('job_attachments').insert({ job_id: id, storage_path: path, original_name: f.name.slice(0, 240), mime_type: f.type, size_bytes: f.size });
+      if (e2) { await sb.storage.from('job-attachments').remove([path]); throw e2; } ok++;
+    } catch (e) { if (msg) msg.textContent = `Uploaded ${ok}. Failed on ${f.name}: ${e.message}`; await loadJobAttachments(id); return; }
   }
-  if (msg) msg.textContent = `${successful} file(s) uploaded.`;
-  if ($('jobUpload')) $('jobUpload').value = '';
-  await loadJobAttachments(jobId);
+  if (msg) msg.textContent = `${ok} file(s) uploaded.`; if ($('jobUpload')) $('jobUpload').value = ''; await loadJobAttachments(id);
 }
-async function deleteAttachment(fileId,jobId) {
-  if (!deleteFilePermission() || !confirm('Remove this attachment permanently?')) return;
+async function deleteAttachment(fileId, jobId) {
+  if (!canRmFile() || !confirm('Remove this attachment permanently?')) return;
   try {
-    const files=await listAttachments(jobId), f=files.find(x=>x.id===fileId);
-    if (!f) throw new Error('Attachment not found');
-    const {error:e1}=await sb.storage.from('job-attachments').remove([f.storage_path]);
-    if(e1) throw e1;
-    const {error:e2}=await sb.from('job_attachments').delete().eq('id',f.id);
-    if(e2) throw e2;
+    const f = (await listAttachments(jobId)).find(x => x.id === fileId); if (!f) throw new Error('Attachment not found');
+    const { error: e1 } = await sb.storage.from('job-attachments').remove([f.storage_path]); if (e1) throw e1;
+    const { error: e2 } = await sb.from('job_attachments').delete().eq('id', f.id); if (e2) throw e2;
     await loadJobAttachments(jobId);
-  } catch(e) { fail(e); }
+  } catch (e) { fail(e); }
 }
 async function removeAllJobFiles(ids) {
-  if (!ids.length) return true;
   try {
     for (const id of ids) {
-      const files = await listAttachments(id);
-      if (!files.length) continue;
-      const {error:e1}=await sb.storage.from('job-attachments').remove(files.map(f=>f.storage_path));
-      if(e1) throw e1;
-      const {error:e2}=await sb.from('job_attachments').delete().eq('job_id',id);
-      if(e2) throw e2;
+      const fs = await listAttachments(id); if (!fs.length) continue;
+      const { error: e1 } = await sb.storage.from('job-attachments').remove(fs.map(f => f.storage_path)); if (e1) throw e1;
+      const { error: e2 } = await sb.from('job_attachments').delete().eq('job_id', id); if (e2) throw e2;
     }
     return true;
-  } catch(e) { fail(e); return false; }
+  } catch (e) { fail(e); return false; }
 }
-function htmlSafe(s) { return esc(s); }
-async function printJob(jobId) {
-  const j=jobs.find(x=>x.id===jobId); if(!j) return;
-  // Open the window immediately inside the user click so popup blockers do not reject it.
-  const w=window.open('','_blank');
-  if(!w) return alert('Please allow popups to print your A4 job order.');
-  w.document.write('<!doctype html><title>Preparing A4 job order…</title><p style="font:16px Arial;padding:20px">Preparing job sheet and attachments…</p>');
+async function printJob(id) {
+  const j = jobs.find(x => x.id === id); if (!j) return;
+  const w = window.open('', '_blank'); if (!w) return alert('Please allow popups to print your A4 job order.');
+  w.document.write('<p style="font:16px Arial;padding:20px">Preparing job sheet…</p>');
   try {
-    const files=await listAttachments(jobId);
-    const resolved=await Promise.all(files.map(async f=>({...f,url:await fileLink(f.storage_path)})));
-    const rows=j.items.map((i,n)=>`<tr><td>${n+1}</td><td>${htmlSafe(i.type)}</td><td>${htmlSafe(i.quantity)}</td><td>${htmlSafe(i.unit)}</td></tr>`).join('');
-    const imageSheets=resolved.filter(f=>f.mime_type.startsWith('image/')).map(f=>`<div class="art"><img src="${htmlSafe(f.url)}" alt="${htmlSafe(f.original_name)}"><p>${htmlSafe(f.original_name)}</p></div>`).join('');
-    const pdfList=resolved.filter(f=>f.mime_type==='application/pdf').map(f=>`<li><a href="${htmlSafe(f.url)}" target="_blank" rel="noopener">${htmlSafe(f.original_name)}</a> — separate PDF attachment</li>`).join('');
-    const hist=(j.history||[]).map(h=>`<li>${htmlSafe(STATUS[h.status]?.label||h.status)} — ${htmlSafe(h.by)} — ${htmlSafe(new Date(h.at).toLocaleString('en-GB'))}</li>`).join('');
-    w.document.open(); w.document.write(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${htmlSafe(j.id)} A4 Job Order</title><style>
-      @page{size:A4;margin:12mm}body{font:12px Arial,sans-serif;color:#1c1917}header{border-bottom:3px solid #a8743f;padding-bottom:12px;margin-bottom:14px;display:flex;justify-content:space-between}h1{font-size:21px;margin:0}h2{font-size:14px;color:#815225;margin:20px 0 8px}.sub{font-size:10px;color:#555}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.panel{border:1px solid #ccc;padding:10px;min-height:45px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #aaa;padding:8px;text-align:left}th{background:#eee}.note{padding:12px;background:#f7f3ee;border:1px solid #ded6cd;white-space:pre-wrap}.art{display:inline-block;vertical-align:top;width:46%;margin:1%;break-inside:avoid}.art img{display:block;width:100%;max-height:90mm;object-fit:contain;border:1px solid #ddd}.art p{overflow-wrap:anywhere;font-size:10px}.sign{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:35px}.sign div{border-top:1px solid #777;padding-top:8px}li{margin:4px 0;overflow-wrap:anywhere}button{padding:9px 16px;background:#a8743f;color:white;border:0;cursor:pointer}@media print{.no-print{display:none!important}} </style></head><body>
-      <div class="no-print"><button onclick="window.print()">Print / Save PDF (A4)</button> <span>In your browser print dialog choose Save as PDF if needed.</span></div>
-      <header><div><h1>ALMISK CARTON BOXES</h1><div class="sub">Packaging Production Control — Job Order</div></div><div><b>${htmlSafe(j.id)}</b><br>${htmlSafe(new Date().toLocaleString('en-GB'))}</div></header>
-      <div class="grid"><div class="panel"><b>Customer / Company</b><p>${htmlSafe(j.companyName)}</p></div><div class="panel"><b>Status / Priority</b><p>${htmlSafe(STATUS[j.status].label)} / ${htmlSafe(j.priority.toUpperCase())}</p></div>
-      <div class="panel"><b>Order date:</b> ${showDate(j.orderDate)}<br><b>Delivery date:</b> ${showDate(j.deliveryDate)}</div><div class="panel"><b>Created by:</b> ${htmlSafe(j.createdBy||'—')}<br><b>Finished:</b> ${showDate(j.finishedOn)}<br><b>Delivered:</b> ${showDate(j.deliveredOn)}</div></div>
-      <h2>Packaging Items</h2><table><thead><tr><th>#</th><th>Type</th><th>Quantity</th><th>Unit</th></tr></thead><tbody>${rows}</tbody></table>
-      <h2>Production Note</h2><div class="note">${htmlSafe(j.note?.trim()||generateAutomaticNote(j))}</div>
-      <h2>Production Status History</h2><ul>${hist}</ul>
-      ${resolved.length?`<h2>Attached Artwork / PDFs</h2>${imageSheets}${pdfList?`<ul>${pdfList}</ul>`:''}`:''}
-      <div class="sign"><div>Customer Approval / Signature</div><div>Production Approval / Signature</div></div>
-      <p class="sub">Printed from ALMISK Production Control • Attachments are linked for authorized access</p>
-      </body></html>`); w.document.close();
-  } catch(e) { w.document.body.innerHTML='<p>Could not prepare print view: '+htmlSafe(e.message)+'</p>'; }
+    const fs = await Promise.all((await listAttachments(id)).map(async f => ({ ...f, url: await fileLink(f.storage_path) })));
+    w.document.open();
+    w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(j.id)} A4 Job Order</title><style>@page{size:A4;margin:12mm}body{font:12px Arial,sans-serif;color:#1c1917}h1{font-size:21px;margin:0 0 10px;border-bottom:3px solid #a8743f;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #aaa;padding:7px;text-align:left}img{max-width:46%;max-height:90mm;margin:1%}button{padding:9px 16px;background:#a8743f;color:#fff;border:0;cursor:pointer}@media print{button{display:none}}</style>
+      <button onclick="print()">Print / Save PDF (A4)</button><h1>ALMISK CARTON BOXES — Job Order ${esc(j.id)}</h1>
+      <p><b>${esc(j.companyName)}</b> · ${STATUS[j.status].label} · ${j.priority.toUpperCase()}<br>Order ${showDate(j.orderDate)} · Delivery ${showDate(j.deliveryDate)} · Created by ${esc(j.createdBy || '—')}</p>
+      <table><tr><th>#</th><th>Type</th><th>Quantity</th><th>Unit</th></tr>${j.items.map((i, n) => `<tr><td>${n + 1}</td><td>${esc(i.type)}</td><td>${esc(i.quantity)}</td><td>${esc(i.unit)}</td></tr>`).join('')}</table>
+      <p>${esc(j.note?.trim() || autoNote(j))}</p>
+      ${fs.filter(f => f.mime_type.startsWith('image/')).map(f => `<img src="${esc(f.url)}" alt="${esc(f.original_name)}">`).join('')}
+      ${fs.filter(f => f.mime_type === 'application/pdf').map(f => `<p><a href="${esc(f.url)}">${esc(f.original_name)}</a> (PDF attachment)</p>`).join('')}
+      <p style="margin-top:40px">Customer signature: ______________ &nbsp;&nbsp; Production signature: ______________</p>`);
+    w.document.close();
+  } catch (e) { w.document.body.innerHTML = 'Could not prepare print view: ' + esc(e.message); }
 }
 
 /* ---------- Events ---------- */
 document.addEventListener('click', e => {
+  if (menuOpen && !e.target.closest('#whoBar')) { menuOpen = false; me && renderWho(); }
   if (e.target === $('modal')) return closeModal();
   const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'SELECT') return;
   const id = el.dataset.id;
+  if (menuOpen && el.dataset.act !== 'menu') { menuOpen = false; me && renderWho(); }
   switch (el.dataset.act) {
+    case 'menu': menuOpen = !menuOpen; renderWho(); break;
     case 'add': openForm(); break;
     case 'edit': openForm(id); break;
     case 'view': openView(id); break;
     case 'print': printJob(id); break;
     case 'removeAttachment': deleteAttachment(el.dataset.file, id); break;
-    case 'quick': updateStatus(id, el.dataset.to); break;
+    case 'quick': closeModal(); updateStatus(id, el.dataset.to); break;
     case 'del': confirmBox('Are you sure you want to delete this job?', 'Delete Job', () => deleteJob(id)); break;
     case 'demo': if (!can('demo')) break; jobs.length ? confirmBox('Demo data will replace your current jobs. Continue?', 'Replace with Demo', loadDemo) : loadDemo(); break;
     case 'clear': if (!can('demo')) break; confirmBox('Delete ALL jobs? This cannot be undone.', 'Clear All Data', clearJobs); break;
@@ -948,7 +604,6 @@ document.addEventListener('click', e => {
     case 'enableAlerts': try { Notification.requestPermission().then(openNotifs); } catch (x) {} break;
     case 'users': if (can('users')) openUsers(); break;
     case 'logout': logout(); break;
-
     case 'chgPw': changePassword(); break;
     case 'enableUser': if (can('users')) sb.from('profiles').update({ approved: true }).eq('id', id).then(() => openUsers()); break;
     case 'delUser': if (can('users')) confirmBox('Disable this user? They will no longer be able to sign in.', 'Disable User', async () => { await sb.from('profiles').update({ approved: false }).eq('id', id); openUsers(); }); break;
@@ -958,20 +613,17 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'jobUpload') uploadJobAttachments(e.target.dataset.job, e.target.files);
-  if (e.target.dataset.act === 'status') updateStatus(e.target.dataset.id, e.target.value);
-  if (e.target.dataset.act === 'roleNotify' && can('users')) { sb.from('roles').update({ notify: e.target.checked }).eq('id', e.target.dataset.id).then(loadRoles); }
-  if (e.target.dataset.act === 'setRole' && can('users')) { sb.from('profiles').update({ role_id: e.target.value }).eq('id', e.target.dataset.id).then(({ error }) => error && fail(error)); }
+  const d = e.target.dataset;
+  if (e.target.id === 'jobUpload') uploadJobAttachments(d.job, e.target.files);
+  if (d.act === 'status') updateStatus(d.id, e.target.value);
+  if (d.act === 'roleNotify' && can('users')) sb.from('roles').update({ notify: e.target.checked }).eq('id', d.id).then(loadRoles);
+  if (d.act === 'setRole' && can('users')) sb.from('profiles').update({ role_id: e.target.value }).eq('id', d.id).then(({ error }) => error && fail(error));
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-[['fq', 'q'], ['fs', 's'], ['fp', 'p'], ['fd', 'd']].forEach(([el, k]) =>
-  $(el).addEventListener(k === 'q' ? 'input' : 'change', e => { filters[k] = e.target.value; renderJobs(); }));
-
-// Refresh countdowns when the date rolls over (e.g. page left open overnight)
-setInterval(() => { if (today() !== shownDate) renderAll(); }, 60000);
-
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); if (menuOpen) { menuOpen = false; me && renderWho(); } } });
+[['fq', 'q'], ['fs', 's'], ['fp', 'p'], ['fd', 'd']].forEach(([el, k]) => $(el).addEventListener(k === 'q' ? 'input' : 'change', e => { filters[k] = e.target.value; renderJobs(); }));
+setInterval(() => { if (me && today() !== shownDate) renderAll(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) liveRefresh(); });
-setInterval(() => { if (!document.hidden) liveRefresh(); }, 30000);   // safety net if live connection drops
+setInterval(() => { if (!document.hidden) liveRefresh(); }, 30000);
 initAuth();
 </script>
 </body>
