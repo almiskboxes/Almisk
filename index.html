@@ -347,7 +347,7 @@ function filterJobs(l) {
 
 /* ---------- Actions ---------- */
 async function updateStatus(id, status) { if (!can('s_' + status)) return; const { error } = await sb.from('jobs').update({ status }).eq('id', id); if (error) fail(error); await refreshData(); renderAll(); }
-async function addJob(d) { if (!can('add')) return false; const { error } = await sb.from('jobs').insert(toRow(d)); if (error) { fail(error); return false; } await refreshData(); renderAll(); return true; }
+async function addJob(d) { if (!can('add')) return false; const { data, error } = await sb.from('jobs').insert(toRow(d)).select('id').single(); if (error) { fail(error); return false; } await refreshData(); renderAll(); return data.id; }
 async function editJob(id, d) {
   const j = jobs.find(x => x.id === id); if (!j || !can('edit')) return false;
   if (d.status !== j.status && !can('s_' + d.status)) d.status = j.status;
@@ -462,6 +462,8 @@ function openForm(id) {
       <label class="block"><span class="font-semibold text-sm">Order Date</span><input id="fOrder" type="date" class="${f}" value="${order}"></label>
       <label class="block"><span class="font-semibold text-sm">Delivery Date</span><input id="fDel" type="date" class="${f}" value="${del}"></label></div>
     <label class="block"><span class="font-semibold text-sm">Note (optional — a status message is shown if empty)</span><textarea id="fNote" rows="2" class="${f}">${esc(j ? j.note : '')}</textarea></label>
+    <div><span class="font-semibold text-sm">📎 Artwork / Attachments</span><span class="block text-xs text-stone-500">JPG, PNG, WEBP or PDF, up to 10 MB each</span>
+      <input id="fFiles" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple class="block mt-2 text-sm max-w-full"><div id="fPrev" class="flex flex-wrap gap-2 mt-2"></div></div>
     <p id="formErr" class="text-red-700 text-sm font-semibold"></p>
     <div class="flex gap-3 justify-end"><button data-act="close" class="border border-stone-300 rounded-xl px-5 py-3 font-semibold">Cancel</button><button data-act="save" class="kraft text-white rounded-xl px-6 py-3 font-bold">Save Job</button></div></div>`);
   $('fOrder').addEventListener('change', e => { if (!delTouched && e.target.value) $('fDel').value = addDays(e.target.value, 3); });
@@ -476,7 +478,17 @@ async function saveForm() {
   if (!orderDate || !deliveryDate) { err.textContent = t('Please choose both dates.'); return; }
   if (deliveryDate < orderDate) { err.textContent = t('Delivery date cannot be before the order date.'); return; }
   const data = { companyName: company, items, orderDate, deliveryDate, priority: $('fPriority').value, status: $('fStatus').value, note: $('fNote').value.trim() };
-  const id = box.dataset.id; if (id ? await editJob(id, data) : await addJob(data)) closeModal();
+  const files = $('fFiles') ? [...$('fFiles').files] : [], bad = fileProblem(files);
+  if (bad) { err.textContent = bad; return; }
+  const id = box.dataset.id, r = id ? await editJob(id, data) : await addJob(data);
+  if (!r) return;
+  if (files.length) {
+    err.textContent = `Uploading ${files.length} file(s)…`;
+    const msg = await putFiles(id || r, files); closeModal();
+    if (msg) alert('Job saved, but ' + msg + '\nOpen the job and upload the file again.');
+    return;
+  }
+  closeModal();
 }
 
 /* ---------- Job view ---------- */
@@ -523,6 +535,24 @@ async function loadJobAttachments(id) {
       ${canRmFile() ? `<button data-act="removeAttachment" data-id="${esc(id)}" data-file="${esc(f.id)}" class="text-red-700 font-semibold border border-red-200 px-3 py-2 rounded-lg">Remove</button>` : ''}</div>`).join('') : '<p>No attachments for this job yet.</p>';
   } catch (e) { if ($('jobFiles')) $('jobFiles').textContent = 'Could not load attachments: ' + e.message; }
 }
+const fileProblem = fs => { for (const f of fs) if (!ALLOWED.has(f.type) || !f.size || f.size > 10485760) return `Invalid file: ${f.name} (JPG, PNG, WEBP, PDF; maximum 10 MB).`; return ''; };
+async function putFiles(id, fs) {
+  let ok = 0;
+  for (const f of fs) {
+    const path = `${id}/${crypto.randomUUID()}.${EXT[f.type]}`;
+    try {
+      const { error: e1 } = await sb.storage.from('job-attachments').upload(path, f, { contentType: f.type, upsert: false }); if (e1) throw e1;
+      const { error: e2 } = await sb.from('job_attachments').insert({ job_id: id, storage_path: path, original_name: f.name.slice(0, 240), mime_type: f.type, size_bytes: f.size });
+      if (e2) { await sb.storage.from('job-attachments').remove([path]); throw e2; } ok++;
+    } catch (e) { return `${ok} of ${fs.length} file(s) uploaded; failed on ${f.name}: ${e.message}`; }
+  }
+  return '';
+}
+function previewFiles(list) {
+  const box = $('fPrev'); if (!box) return;
+  box.innerHTML = [...list].map(f => { const good = ALLOWED.has(f.type) && f.size > 0 && f.size <= 10485760;
+    return `<div class="w-20 text-center text-xs ${good ? '' : 'text-red-700'}">${f.type.startsWith('image/') ? `<img src="${URL.createObjectURL(f)}" class="w-20 h-20 object-cover rounded-lg border border-stone-200" alt="">` : '<div class="w-20 h-20 rounded-lg border border-stone-200 flex items-center justify-center text-2xl bg-stone-50">📄</div>'}<div class="truncate">${esc(f.name)}</div>${good ? '' : '<div>Not allowed</div>'}</div>`; }).join('');
+}
 async function uploadJobAttachments(id, sel) {
   if (!canUpload()) return; const files = [...sel], msg = $('uploadMsg'); if (!files.length) return;
   for (const f of files) if (!ALLOWED.has(f.type) || !f.size || f.size > 10485760) { if (msg) msg.textContent = `Invalid file: ${f.name} (JPG, PNG, WEBP, PDF; maximum 10 MB).`; return; }
@@ -556,21 +586,43 @@ async function removeAllJobFiles(ids) {
     return true;
   } catch (e) { fail(e); return false; }
 }
+const CO = { name: 'AL MISK FOR CARTON BXS CON S P LLC', tel: '06 - 742 0777', wa: '055 - 144 0633', ig: 'almisk boxes', mail: 'almiskboxes@gmail.com', l1: 'Sole Proprietorship L.L.C', l2: 'For Carton Boxes And Containers' };
 async function printJob(id) {
   const j = jobs.find(x => x.id === id); if (!j) return;
   const w = window.open('', '_blank'); if (!w) return alert('Please allow popups to print your A4 job order.');
   w.document.write('<p style="font:16px Arial;padding:20px">Preparing job sheet…</p>');
   try {
     const fs = await Promise.all((await listAttachments(id)).map(async f => ({ ...f, url: await fileLink(f.storage_path) })));
+    const imgs = fs.filter(f => f.mime_type.startsWith('image/')), pdfs = fs.filter(f => f.mime_type === 'application/pdf');
+    const hist = (j.history || []).map(h => `<tr><td>${esc(STATUS[h.status].label)}</td><td>${esc(h.by)}</td><td>${esc(new Date(h.at).toLocaleString('en-GB'))}</td></tr>`).join('');
     w.document.open();
-    w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(j.id)} A4 Job Order</title><style>@page{size:A4;margin:12mm}body{font:12px Arial,sans-serif;color:#1c1917}h1{font-size:21px;margin:0 0 10px;border-bottom:3px solid #a8743f;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #aaa;padding:7px;text-align:left}img{max-width:46%;max-height:90mm;margin:1%}button{padding:9px 16px;background:#a8743f;color:#fff;border:0;cursor:pointer}@media print{button{display:none}}</style>
-      <button onclick="print()">Print / Save PDF (A4)</button><h1>ALMISK CARTON BOXES — Job Order ${esc(j.id)}</h1>
-      <p><b>${esc(j.companyName)}</b> · ${STATUS[j.status].label} · ${j.priority.toUpperCase()}<br>Order ${showDate(j.orderDate)} · Delivery ${showDate(j.deliveryDate)} · Created by ${esc(j.createdBy || '—')}</p>
-      <table><tr><th>#</th><th>Type</th><th>Quantity</th><th>Unit</th></tr>${j.items.map((i, n) => `<tr><td>${n + 1}</td><td>${esc(i.type)}</td><td>${esc(i.quantity)}</td><td>${esc(i.unit)}</td></tr>`).join('')}</table>
-      <p>${esc(j.note?.trim() || autoNote(j))}</p>
-      ${fs.filter(f => f.mime_type.startsWith('image/')).map(f => `<img src="${esc(f.url)}" alt="${esc(f.original_name)}">`).join('')}
-      ${fs.filter(f => f.mime_type === 'application/pdf').map(f => `<p><a href="${esc(f.url)}">${esc(f.original_name)}</a> (PDF attachment)</p>`).join('')}
-      <p style="margin-top:40px">Customer signature: ______________ &nbsp;&nbsp; Production signature: ______________</p>`);
+    w.document.write(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(j.id)} – Job Order</title><style>
+@page{size:A4;margin:10mm}*{box-sizing:border-box}body{margin:0;font:12px/1.4 Arial,Helvetica,sans-serif;color:#111}
+.bar{padding:8px;background:#f3ece4;text-align:center}.bar button{padding:9px 18px;background:#a8743f;color:#fff;border:0;border-radius:6px;font-size:14px;cursor:pointer}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:3px solid #a8743f}
+.co h1{font-size:20px;margin:0 0 10px}.co p{margin:3px 0;font-size:12.5px}.co i{display:inline-block;width:20px;font-style:normal;font-weight:700}
+.logo{text-align:center;width:64mm}.logo b{display:block;letter-spacing:.38em;font-size:15px;margin:2px 0 4px}.logo small{display:block;font-size:9.5px;line-height:1.35}
+.jo{margin:12px 0 8px;font-size:17px}.jo b{font-size:21px;margin-left:6px}
+table{width:100%;border-collapse:collapse}.box{border:1.5px solid #111;margin-bottom:6px}.box td{border:1px solid #111;padding:7px 9px;vertical-align:top;width:25%}
+.lbl{font-weight:700;color:#555;font-size:10.5px}.big{font-size:14px;font-weight:700}
+.it th,.it td{border:1px solid #444;padding:6px 8px;text-align:left}.it th{background:#eee}
+h2{font-size:13px;margin:14px 0 6px;border-bottom:2px solid #a8743f;padding-bottom:3px}
+.note{border:1px solid #bbb;padding:8px;min-height:30px;white-space:pre-wrap}
+.art{display:grid;grid-template-columns:1fr 1fr;gap:8px}.art figure{margin:0;break-inside:avoid;border:1px solid #ccc;padding:4px}.art img{width:100%;max-height:105mm;object-fit:contain;display:block}.art figcaption{font-size:9px;overflow-wrap:anywhere}
+.hist td{border-bottom:1px solid #ddd;padding:3px 6px;font-size:11px}.sign{display:flex;gap:24px;margin-top:34px;break-inside:avoid}.sign div{flex:1;border-top:1px solid #111;padding-top:5px;font-size:11px}
+@media print{.bar{display:none}}</style></head><body>
+<div class="bar"><button onclick="window.print()">Print / Save PDF (A4)</button></div>
+<div class="top"><div class="co"><h1>${esc(CO.name)}</h1><p><i>☎</i>${esc(CO.tel)}</p><p><i>✆</i>${esc(CO.wa)} (WhatsApp)</p><p><i>◎</i>${esc(CO.ig)}</p><p><i>@</i>${esc(CO.mail)}</p></div>
+<div class="logo"><svg width="46" height="46" viewBox="0 0 34 34"><path d="M17 2l13 7v16l-13 7-13-7V9z" fill="#111"/><path d="M4 9l13 7 13-7M17 16v16" stroke="#fff" stroke-width="2" fill="none"/></svg><b>ALMISK</b><small>${esc(CO.name)}<br>${esc(CO.l1)}<br>${esc(CO.l2)}</small></div></div>
+<div class="jo">JOB ORDER NO:<b>${esc(j.id)}</b></div>
+<table class="box"><tr><td><span class="lbl">Date</span><br><span class="big">${showDate(j.orderDate)}</span></td><td><span class="lbl">Invoice No.</span><br>&nbsp;</td><td><span class="lbl">Delivery date</span><br><span class="big">${showDate(j.deliveryDate)}</span></td><td><span class="lbl">Priority</span><br><span class="big">${esc(j.priority.toUpperCase())}</span></td></tr>
+<tr><td colspan="2"><span class="lbl">Customer / Company</span><br><span class="big">${esc(j.companyName)}</span></td><td><span class="lbl">Status</span><br><span class="big">${esc(STATUS[j.status].label)}</span></td><td><span class="lbl">Created by</span><br><span class="big">${esc(j.createdBy || '—')}</span></td></tr></table>
+<h2>Packaging Items</h2><table class="it"><tr><th style="width:8%">#</th><th>Type</th><th style="width:20%">Quantity</th><th style="width:20%">Unit</th></tr>${j.items.map((i, n) => `<tr><td>${n + 1}</td><td>${esc(i.type)}</td><td>${esc(i.quantity)}</td><td>${esc(i.unit)}</td></tr>`).join('')}</table>
+<h2>Production Note</h2><div class="note">${esc(j.note?.trim() || autoNote(j))}</div>
+${hist ? `<h2>Status History</h2><table class="hist">${hist}</table>` : ''}
+${imgs.length ? `<h2>Artwork</h2><div class="art">${imgs.map(f => `<figure><img src="${esc(f.url)}" alt=""><figcaption>${esc(f.original_name)}</figcaption></figure>`).join('')}</div>` : ''}
+${pdfs.length ? `<h2>PDF Attachments</h2><ul>${pdfs.map(f => `<li><a href="${esc(f.url)}">${esc(f.original_name)}</a></li>`).join('')}</ul>` : ''}
+<div class="sign"><div>Customer approval / signature</div><div>Production approval / signature</div></div></body></html>`);
     w.document.close();
   } catch (e) { w.document.body.innerHTML = 'Could not prepare print view: ' + esc(e.message); }
 }
@@ -615,6 +667,7 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   const d = e.target.dataset;
   if (e.target.id === 'jobUpload') uploadJobAttachments(d.job, e.target.files);
+  if (e.target.id === 'fFiles') previewFiles(e.target.files);
   if (d.act === 'status') updateStatus(d.id, e.target.value);
   if (d.act === 'roleNotify' && can('users')) sb.from('roles').update({ notify: e.target.checked }).eq('id', d.id).then(loadRoles);
   if (d.act === 'setRole' && can('users')) sb.from('profiles').update({ role_id: e.target.value }).eq('id', d.id).then(({ error }) => error && fail(error));
